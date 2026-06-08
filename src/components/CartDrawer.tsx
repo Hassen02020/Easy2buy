@@ -104,7 +104,7 @@ export function CartDrawer({ onCheckout }: CartDrawerProps) {
                         {item.name}
                       </p>
                       <p className="text-forest-700 font-bold text-sm mt-0.5">
-                        {(item.price * item.quantity).toFixed(2)} €
+                        {(item.price * item.quantity).toFixed(3)} TND
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <button
@@ -147,7 +147,7 @@ export function CartDrawer({ onCheckout }: CartDrawerProps) {
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600 font-medium">Total</span>
                   <span className="text-2xl font-extrabold text-forest-800">
-                    {total.toFixed(2)} €
+                    {total.toFixed(3)} TND
                   </span>
                 </div>
                 <button
