@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * app/admin/orders/[id]/page.tsx
  * --------------------------------

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * app/admin/products/page.tsx
  * Server Component — liste + formulaire de gestion des produits
