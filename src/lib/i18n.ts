@@ -44,9 +44,9 @@ export const t = {
     testimonials: {
       title: "Ce que disent nos clients",
       items: [
-        { name: "Sofia M.",  text: "Monstera magnifique, livrée le lendemain bien emballée. Je recommande vivement !", plant: "Monstera Deliciosa" },
-        { name: "Karim B.",  text: "Super service client. Ma lavande était parfaite pour mon balcon. Achat facile.",   plant: "Lavande Vraie" },
-        { name: "Amira L.",  text: "Aloe vera en parfaite santé, très bien présenté. Le site est super simple.",       plant: "Aloe Vera" },
+        { name: "Sofia M.",  text: "Mon olivier tunisien est magnifique, livré le lendemain bien emballé. Je recommande vivement !", plant: "Olivier Tunisien" },
+        { name: "Karim B.",  text: "Super service client. Ma lavande était parfaite pour mon balcon. Achat facile.",   plant: "Lavande" },
+        { name: "Amira L.",  text: "Le grenadier est en parfaite santé, très bien présenté. Le site est super simple.",       plant: "Grenadier" },
       ],
     },
     order: {
@@ -125,9 +125,9 @@ export const t = {
     testimonials: {
       title: "آراء عملائنا",
       items: [
-        { name: "Sofia M.",  text: "نبات رائع، وصل في اليوم التالي معبّأً بشكل ممتاز. أنصح به بشدة!", plant: "Monstera Deliciosa" },
-        { name: "Karim B.",  text: "خدمة ممتازة. اللافندر كان مثاليًا لشرفتي. طلب سهل وسريع.",      plant: "لافندر" },
-        { name: "Amira L.",  text: "ألوي فيرا بصحة جيدة جدّاً، تقديم ممتاز. الموقع سهل الاستخدام.",   plant: "Aloe Vera" },
+        { name: "Sofia M.",  text: "شجرة زيتون رائعة، وصلت في اليوم التالي معبّأة بشكل ممتاز. أنصح بها بشدة!", plant: "شجرة الزيتون" },
+        { name: "Karim B.",  text: "خدمة ممتازة. اللافندر كان مثاليًا لشرفتي. طلب سهل وسريع.",      plant: "الخزامة" },
+        { name: "Amira L.",  text: "شجرة الرمان بصحة جيدة جدّاً، تقديم ممتاز. الموقع سهل الاستخدام.",   plant: "شجرة الرمان" },
       ],
     },
     order: {

@@ -58,7 +58,7 @@ export const products: Product[] = [
     nameAr: "شجرة التين",
     description: "Le figuier tunisien par excellence 🌳. Fruits sucrés, ombre agréable, croissance rapide. Idéal pour villa ou grande terrasse. 🚚 Livraison gratuite.",
     price: 34,
-    image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&q=80",
+    image: "https://images.unsplash.com/photo-1601648764658-cf37e8c89b70?w=600&q=80",
     category: "extérieur",
     inStock: true,
     rating: 4.7,
