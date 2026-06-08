@@ -196,6 +196,7 @@ export function Header({ lang, setLang, onScrollCatalogue, onScrollOrder }: Head
               className="p-2.5 rounded-xl hover:bg-forest-50 transition-colors text-gray-600"
               aria-label={searchOpen ? "Fermer la recherche" : "Rechercher"}
               aria-expanded={searchOpen}
+              aria-controls="search-bar"
             >
               {searchOpen ? <X size={20} /> : <Search size={20} />}
             </button>
@@ -239,6 +240,7 @@ export function Header({ lang, setLang, onScrollCatalogue, onScrollOrder }: Head
         <AnimatePresence>
           {searchOpen && (
             <motion.div
+              id="search-bar"
               key="searchbar"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}

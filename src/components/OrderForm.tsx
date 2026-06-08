@@ -241,10 +241,21 @@ export function OrderForm({ onSuccess }: OrderFormProps) {
   const [sameAddress, setSameAddress] = useState(true);
   const cityValue2 = useWatch({ control, name: "city", defaultValue: "" });
 
+  // Sync auto : quand la ville change et sameAddress=true, met à jour l'adresse
+  useEffect(() => {
+    if (sameAddress) {
+      setValue(
+        "address",
+        cityValue2 && cityValue2.length >= 2 ? `Livraison à ${cityValue2} — adresse à préciser` : "Adresse à confirmer avec le livreur",
+        { shouldValidate: false }
+      );
+    }
+  }, [cityValue2, sameAddress, setValue]);
+
   const handleSameAddress = (checked: boolean) => {
     setSameAddress(checked);
     if (checked) {
-      setValue("address", cityValue2 ? `${cityValue2} — à préciser` : "", { shouldValidate: false });
+      setValue("address", cityValue2 ? `Livraison à ${cityValue2} — adresse à préciser` : "Adresse à confirmer avec le livreur", { shouldValidate: false });
     } else {
       setValue("address", "", { shouldValidate: false });
     }
@@ -416,18 +427,18 @@ export function OrderForm({ onSuccess }: OrderFormProps) {
             <form onSubmit={goToPayment} noValidate className="space-y-4">
 
               <div>
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5 mb-1.5">
+                <label htmlFor="field-name" className="text-sm font-medium text-gray-700 flex items-center gap-1.5 mb-1.5">
                   <User size={14} className="text-forest-500" /> Nom complet
                 </label>
-                <input {...register("name")} placeholder="Votre nom" className={inputCls(!!errors.name)} autoComplete="name" />
+                <input id="field-name" {...register("name")} placeholder="Votre nom" className={inputCls(!!errors.name)} autoComplete="name" />
                 {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5 mb-1.5">
+                <label htmlFor="field-phone" className="text-sm font-medium text-gray-700 flex items-center gap-1.5 mb-1.5">
                   <Phone size={14} className="text-forest-500" /> Téléphone
                 </label>
-                <input {...register("phone")} type="tel" placeholder="+216 XX XXX XXX" className={inputCls(!!errors.phone)} autoComplete="tel" />
+                <input id="field-phone" {...register("phone")} type="tel" placeholder="+216 XX XXX XXX" className={inputCls(!!errors.phone)} autoComplete="tel" />
                 {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone.message}</p>}
               </div>
 
@@ -451,7 +462,7 @@ export function OrderForm({ onSuccess }: OrderFormProps) {
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                  <label htmlFor="field-address" className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
                     <MapPin size={14} className="text-forest-500" /> Adresse de livraison
                   </label>
                   {/* Toggle même adresse */}
@@ -484,6 +495,7 @@ export function OrderForm({ onSuccess }: OrderFormProps) {
                 ) : (
                   <>
                     <textarea
+                      id="field-address"
                       {...register("address")}
                       rows={3}
                       placeholder="Rue, quartier, immeuble, numéro…"
@@ -496,19 +508,20 @@ export function OrderForm({ onSuccess }: OrderFormProps) {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5 mb-1.5">
+                <label htmlFor="field-notes" className="text-sm font-medium text-gray-700 flex items-center gap-1.5 mb-1.5">
                   <MessageSquare size={14} className="text-forest-500" /> Notes (optionnel)
                 </label>
-                <textarea {...register("notes")} rows={2} placeholder="Instructions spéciales..." className={inputCls(!!errors.notes)} />
+                <textarea id="field-notes" {...register("notes")} rows={2} placeholder="Instructions spéciales..." className={inputCls(!!errors.notes)} />
               </div>
 
               {/* Code parrainage */}
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-2">
-                <label className="text-sm font-semibold text-amber-700 flex items-center gap-1.5">
+                <label htmlFor="field-referral" className="text-sm font-semibold text-amber-700 flex items-center gap-1.5">
                   🎁 Code de parrainage <span className="text-xs font-normal text-amber-500">(optionnel)</span>
                 </label>
                 <div className="flex gap-2">
                   <input
+                    id="field-referral"
                     type="text"
                     value={referralCode}
                     onChange={e => { setReferralCode(e.target.value.toUpperCase()); setReferralStatus("idle"); }}
