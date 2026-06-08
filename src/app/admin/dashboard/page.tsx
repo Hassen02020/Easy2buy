@@ -58,7 +58,7 @@ async function getDashboardData(from?: string, to?: string, filterAgent?: string
 
   // Tous les membres du staff (colonnes ciblées)
   const allStaff = await db
-    .select({ id: staff.id, name: staff.name, role: staff.role })
+    .select({ id: staff.id, name: staff.name, role: staff.role, email: staff.email })
     .from(staff)
     .where(eq(staff.active, true));
 
