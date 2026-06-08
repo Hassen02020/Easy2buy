@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 
 import { db } from "@/db";
 import { orders, orderItems, staff } from "@/db/schema";
-import { eq, gte, lte, and, count, desc, sql } from "drizzle-orm";
+import { eq, gte, lte, and, count, desc, sql, inArray } from "drizzle-orm";
 import type { OrderStatus } from "@/db/schema";
 import { calcOrderProfit, aggregateProfits } from "@/lib/profitability";
 import { AdminNav } from "@/components/AdminNav";
@@ -133,7 +133,7 @@ async function getDashboardData(from?: string, to?: string, filterAgent?: string
           lineTotal:     orderItems.lineTotal,
         })
         .from(orderItems)
-        .where(sql`${orderItems.orderId} = ANY(ARRAY[${sql.join(recentOrderIds.map(id => sql`${id}`), sql`, `)}]::int[])`)
+        .where(inArray(orderItems.orderId, recentOrderIds))
     : [];
   const itemsByOrder: Record<number, typeof allItems> = {};
   for (const item of allItems) {
