@@ -57,11 +57,11 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-forest-900 via-forest-800 to-forest-600 text-white min-h-[90vh] flex items-center">
         {/* Slideshow arrière-plan jardins tunisiens */}
         {[
-          "https://images.unsplash.com/photo-1490750967868-88df5691cc88",  // jasmin
-          "https://images.unsplash.com/photo-1528722828814-77b9b83aafb2",  // lavande
-          "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5",  // olivier
-          "https://images.unsplash.com/photo-1595435742656-5272d0b3fa82",  // pêcher
-          "https://images.unsplash.com/photo-1416879595882-3373a0480b5b",  // jardin
+          "https://picsum.photos/seed/jasmin/1600/900",   // jasmin
+          "https://picsum.photos/seed/lavande/1600/900",   // lavande
+          "https://picsum.photos/seed/olivier/1600/900",   // olivier
+          "https://picsum.photos/seed/pecher/1600/900",    // pêcher
+          "https://picsum.photos/seed/jardin/1600/900",    // jardin
         ].map((src, i) => (
           <motion.div
             key={src}
