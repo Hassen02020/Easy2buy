@@ -147,9 +147,9 @@ export default function HomePage() {
         {[
           "https://cdn.converty.shop/images/4f9a848a26f7e8024ce6cce8174148fb5ac16bf88789bee0d8cc9acf6ae46712_lg.webp",  // jasmin tunisien
           "https://cdn.converty.shop/images/b6163e6182b8231fcbe57a6416026f5192b5f1d94bb5721eca78bd2e78b3e62f_lg.webp",  // lavande
-          "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=1600&q=85",  // olivier
-          "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1600&q=85",  // figuier
-          "https://images.unsplash.com/photo-1547514701-42782101795e?w=1600&q=85",      // citronnier
+          "https://images.unsplash.com/photo-1609780447631-05b93e5a88ea?w=1600&q=85",  // olivier
+          "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=1600&q=85",  // figuier
+          "https://images.unsplash.com/photo-1595435742656-5272d0b3fa82?w=1600&q=85",  // pêcher
         ].map((src, i) => (
           <motion.div
             key={src}
