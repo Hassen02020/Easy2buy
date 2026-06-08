@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 /**
  * app/admin/dashboard/page.tsx
  * -----------------------------
