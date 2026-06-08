@@ -76,7 +76,7 @@ export default function HomePage() {
               times: [0, 0.08, 0.92, 1],
             }}
           >
-            <Image src={src} alt="Jardin tunisien" fill className="object-cover" priority={i === 0} sizes="100vw" />
+            <Image src={src} alt="Jardin tunisien" fill className="object-cover" sizes="100vw" />
           </motion.div>
         ))}
         {/* Overlay dégradé pour lisibilité */}
