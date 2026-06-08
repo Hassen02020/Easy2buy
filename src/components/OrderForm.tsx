@@ -97,13 +97,20 @@ function CityCombobox({
 
   return (
     <div ref={ref} className="relative">
-      <div className={`flex items-center border rounded-xl ${
-        hasError ? "border-red-400 bg-red-50" : "border-gray-200 bg-white"
-      } focus-within:ring-2 ${
-        hasError ? "focus-within:ring-red-400" : "focus-within:ring-forest-400"
-      } transition overflow-hidden`}>
+      <div
+        role="combobox"
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-owns="city-listbox"
+        className={`flex items-center border rounded-xl ${
+          hasError ? "border-red-400 bg-red-50" : "border-gray-200 bg-white"
+        } focus-within:ring-2 ${
+          hasError ? "focus-within:ring-red-400" : "focus-within:ring-forest-400"
+        } transition overflow-hidden`}
+      >
         <Search size={14} className="ml-3 text-gray-400 shrink-0" />
         <input
+          id="field-city"
           type="text"
           value={query}
           onChange={(e) => { setQuery(e.target.value); onChange(e.target.value); setOpen(true); }}
@@ -111,8 +118,8 @@ function CityCombobox({
           placeholder="Tunis, Sousse, Sfax…"
           autoComplete="off"
           className="flex-1 px-3 py-3 text-sm text-gray-800 placeholder-gray-400 bg-transparent outline-none"
-          aria-haspopup="listbox"
-          aria-expanded={open}
+          aria-autocomplete="list"
+          aria-controls="city-listbox"
         />
         <button
           type="button"
@@ -133,6 +140,7 @@ function CityCombobox({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.15 }}
+            id="city-listbox"
             role="listbox"
             className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-xl max-h-56 overflow-y-auto scrollbar-hide"
           >
@@ -443,7 +451,7 @@ export function OrderForm({ onSuccess }: OrderFormProps) {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5 mb-1.5">
+                <label htmlFor="field-city" className="text-sm font-medium text-gray-700 flex items-center gap-1.5 mb-1.5">
                   <Building2 size={14} className="text-forest-500" /> Gouvernorat / Municipalité
                 </label>
                 <Controller
