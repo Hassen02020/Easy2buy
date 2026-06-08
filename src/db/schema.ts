@@ -149,8 +149,10 @@ export const orders = pgTable(
     /** Statut — valeur par défaut PENDING (ACID: défini en même temps que les items) */
     status: orderStatusEnum("status").notNull().default("PENDING"),
     /** RBAC — Personnel assigné */
-    assignedTo: integer("assigned_to").references(() => staff.id),    // agent responsable
+    assignedTo:  integer("assigned_to").references(() => staff.id),   // agent responsable
     confirmedBy: integer("confirmed_by").references(() => staff.id),  // qui a confirmé
+    preparedBy:  integer("prepared_by").references(() => staff.id),   // préparateur
+    packedBy:    integer("packed_by").references(() => staff.id),     // emballeur
     deliveredBy: integer("delivered_by").references(() => staff.id),  // livreur
     /** Paiement */
     paymentMethod: paymentMethodEnum("payment_method").notNull().default("CASH_ON_DELIVERY"),
@@ -174,7 +176,41 @@ export const orders = pgTable(
   (t) => [
     index("orders_status_idx").on(t.status),
     index("orders_assigned_idx").on(t.assignedTo),
+    index("orders_prepared_idx").on(t.preparedBy),
+    index("orders_packed_idx").on(t.packedBy),
     index("orders_delivered_idx").on(t.deliveredBy),
+  ]
+);
+
+// ---------------------------------------------------------------------------
+// Table: workflow_events  (traçabilité fine du cycle opérationnel)
+// ---------------------------------------------------------------------------
+
+export const workflowActionEnum = pgEnum("workflow_action", [
+  "ASSIGNED",   // commande assignée à un agent
+  "PREPARED",   // préparée par le préparateur
+  "PACKED",     // emballée
+  "CONFIRMED",  // confirmée / vente validée
+  "SHIPPED",    // expédiée
+  "DELIVERED",  // livrée avec succès
+  "RETURNED",   // retour
+  "CANCELLED",  // annulée
+]);
+
+export const workflowEvents = pgTable(
+  "workflow_events",
+  {
+    id:        serial("id").primaryKey(),
+    orderId:   integer("order_id").references(() => orders.id, { onDelete: "cascade" }).notNull(),
+    staffId:   integer("staff_id").references(() => staff.id),
+    staffName: text("staff_name"),
+    action:    workflowActionEnum("action").notNull(),
+    note:      text("note"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (t) => [
+    index("workflow_order_idx").on(t.orderId),
+    index("workflow_staff_idx").on(t.staffId),
   ]
 );
 
@@ -233,18 +269,24 @@ export const auditLog = pgTable(
 // ---------------------------------------------------------------------------
 
 export const staffRelations = relations(staff, ({ many }) => ({
-  assignedOrders: many(orders, { relationName: "assignedOrders" }),
+  assignedOrders:  many(orders, { relationName: "assignedOrders" }),
   confirmedOrders: many(orders, { relationName: "confirmedOrders" }),
+  preparedOrders:  many(orders, { relationName: "preparedOrders" }),
+  packedOrders:    many(orders, { relationName: "packedOrders" }),
   deliveredOrders: many(orders, { relationName: "deliveredOrders" }),
-  auditActions: many(auditLog),
+  auditActions:    many(auditLog),
+  workflowEvents:  many(workflowEvents),
 }));
 
 export const ordersRelations = relations(orders, ({ many, one }) => ({
-  items: many(orderItems),
-  auditTrail: many(auditLog),
-  assignedAgent: one(staff, { fields: [orders.assignedTo], references: [staff.id], relationName: "assignedOrders" }),
+  items:          many(orderItems),
+  auditTrail:     many(auditLog),
+  workflowEvents: many(workflowEvents),
+  assignedAgent:  one(staff, { fields: [orders.assignedTo],  references: [staff.id], relationName: "assignedOrders" }),
   confirmedAgent: one(staff, { fields: [orders.confirmedBy], references: [staff.id], relationName: "confirmedOrders" }),
-  deliveryAgent: one(staff, { fields: [orders.deliveredBy], references: [staff.id], relationName: "deliveredOrders" }),
+  preparedAgent:  one(staff, { fields: [orders.preparedBy],  references: [staff.id], relationName: "preparedOrders" }),
+  packedAgent:    one(staff, { fields: [orders.packedBy],    references: [staff.id], relationName: "packedOrders" }),
+  deliveryAgent:  one(staff, { fields: [orders.deliveredBy], references: [staff.id], relationName: "deliveredOrders" }),
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
@@ -254,6 +296,11 @@ export const orderItemsRelations = relations(orderItems, ({ one }) => ({
 
 export const productsRelations = relations(products, ({ many }) => ({
   orderItems: many(orderItems),
+}));
+
+export const workflowEventsRelations = relations(workflowEvents, ({ one }) => ({
+  order: one(orders, { fields: [workflowEvents.orderId], references: [orders.id] }),
+  staff: one(staff,  { fields: [workflowEvents.staffId],  references: [staff.id] }),
 }));
 
 export const auditLogRelations = relations(auditLog, ({ one }) => ({
@@ -393,6 +440,8 @@ export type Staff = typeof staff.$inferSelect;
 export type NewStaff = typeof staff.$inferInsert;
 export type StaffRole = (typeof staffRoleEnum.enumValues)[number];
 export type AuditLog = typeof auditLog.$inferSelect;
+export type WorkflowEvent = typeof workflowEvents.$inferSelect;
+export type WorkflowAction = (typeof workflowActionEnum.enumValues)[number];
 export type PaymentMethod = (typeof paymentMethodEnum.enumValues)[number];
 export type PaymentStatus = (typeof paymentStatusEnum.enumValues)[number];
 export type CustomerProfile = typeof customerProfiles.$inferSelect;

@@ -14,7 +14,7 @@ import { db } from "@/db";
 import { orders, orderItems, staff, auditLog } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { setOrderPayment, confirmDeliveryPayment, updateDeliveryNotes, updateCourierRemarks } from "@/app/admin/actions";
+import { setOrderPayment, confirmDeliveryPayment, updateDeliveryNotes, updateCourierRemarks, assignTask } from "@/app/admin/actions";
 import { DeliverySlip } from "@/components/DeliverySlip";
 
 async function setPaymentAction(formData: FormData): Promise<void> {
@@ -35,6 +35,11 @@ async function deliveryNotesAction(formData: FormData): Promise<void> {
 async function courierRemarksAction(formData: FormData): Promise<void> {
   "use server";
   await updateCourierRemarks(formData);
+}
+
+async function assignTaskAction(formData: FormData): Promise<void> {
+  "use server";
+  await assignTask(formData);
 }
 
 // ---------------------------------------------------------------------------
@@ -291,8 +296,43 @@ export default async function OrderDetailPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* ── Colonne droite : panneau paiement ── */}
+          {/* ── Colonne droite : assignation + paiement ── */}
           <div className="space-y-4">
+
+            {/* ── Panneau Assignation Équipe ── */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 text-sm uppercase tracking-wide mb-4">Assignation Équipe</h2>
+
+              {[
+                { label: "Agent responsable",  role: "assignedTo",  current: order.assignedTo,  filter: (s: typeof allStaff[number]) => s.role !== "LIVREUR" },
+                { label: "Préparateur",        role: "preparedBy",  current: order.preparedBy,  filter: (s: typeof allStaff[number]) => s.role !== "LIVREUR" },
+                { label: "Emballeur",          role: "packedBy",    current: order.packedBy,    filter: (_s: typeof allStaff[number]) => true },
+                { label: "Livreur",            role: "deliveredBy", current: order.deliveredBy, filter: (s: typeof allStaff[number]) => s.role !== "AGENT" },
+              ].map(({ label, role, current, filter }) => {
+                const options = allStaff.filter(filter);
+                return (
+                  <form key={role} action={assignTaskAction} className="flex items-center gap-2 mb-2">
+                    <input type="hidden" name="orderId"    value={order.id} />
+                    <input type="hidden" name="role"       value={role} />
+                    <input type="hidden" name="actorRole"  value="ADMIN" />
+                    <label className="text-xs text-gray-500 w-28 shrink-0">{label}</label>
+                    <select
+                      name="staffId"
+                      defaultValue={current ?? ""}
+                      className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-forest-400"
+                    >
+                      <option value="">— Non assigné —</option>
+                      {options.map((s) => (
+                        <option key={s.id} value={s.id}>{s.name} ({s.role})</option>
+                      ))}
+                    </select>
+                    <button type="submit" className="text-xs bg-forest-600 hover:bg-forest-700 text-white font-bold px-2.5 py-1.5 rounded-lg transition-colors shrink-0">
+                      ✓
+                    </button>
+                  </form>
+                );
+              })}
+            </div>
 
             {/* Récapitulatif paiement */}
             <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm space-y-3">

@@ -13,14 +13,15 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
-import { products, orders, auditLog, staff } from "@/db/schema";
+import { products, orders, auditLog, staff, workflowEvents } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import type { OrderStatus, PaymentMethod } from "@/db/schema";
+import type { OrderStatus, PaymentMethod, StaffRole } from "@/db/schema";
 import {
   processOrderPayment,
   confirmDeliveryPayment as _confirmDelivery,
   PaymentError,
 } from "@/lib/payment";
+import { requireAccess, RBACError } from "@/lib/rbac";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -287,6 +288,123 @@ export async function confirmDeliveryPayment(formData: FormData): Promise<{ erro
     console.error("[confirmDeliveryPayment]", err);
     return { error: "Erreur lors de la confirmation du paiement" };
   }
+}
+
+// ---------------------------------------------------------------------------
+// Workflow — Assignation de tâche (ASSIGN_ORDER : Admin / Agent)
+// ---------------------------------------------------------------------------
+
+/**
+ * assignTask : assigne un membre du staff à un rôle sur une commande.
+ * FormData : orderId, role ("assignedTo"|"preparedBy"|"packedBy"|"deliveredBy"), staffId, actorRole
+ */
+export async function assignTask(formData: FormData): Promise<{ error?: string }> {
+  const orderId    = Number(formData.get("orderId"));
+  const role       = String(formData.get("role")) as "assignedTo" | "preparedBy" | "packedBy" | "deliveredBy";
+  const staffId    = Number(formData.get("staffId")) || null;
+  const actorRole  = String(formData.get("actorRole") ?? "") as StaffRole;
+
+  if (!orderId || !role) return { error: "Paramètres manquants." };
+
+  try {
+    requireAccess(actorRole, "ASSIGN_ORDER");
+  } catch (e) {
+    if (e instanceof RBACError) return { error: e.message };
+    throw e;
+  }
+
+  // Récupère le nom du staff assigné pour le log
+  let staffName: string | null = null;
+  if (staffId) {
+    const [member] = await db.select({ name: staff.name }).from(staff).where(eq(staff.id, staffId));
+    staffName = member?.name ?? null;
+  }
+
+  const ROLE_TO_COLUMN = {
+    assignedTo:  { col: orders.assignedTo,  action: "ASSIGNED"  },
+    preparedBy:  { col: orders.preparedBy,  action: "PREPARED"  },
+    packedBy:    { col: orders.packedBy,    action: "PACKED"    },
+    deliveredBy: { col: orders.deliveredBy, action: "DELIVERED" },
+  } as const;
+
+  const mapping = ROLE_TO_COLUMN[role];
+  if (!mapping) return { error: "Rôle invalide." };
+
+  await db.transaction(async (tx) => {
+    await tx.update(orders)
+      .set({ [role]: staffId, updatedAt: new Date() })
+      .where(eq(orders.id, orderId));
+
+    await tx.insert(workflowEvents).values({
+      orderId,
+      staffId,
+      staffName,
+      action: mapping.action,
+      note: staffName ? `Assigné à ${staffName}` : "Désassigné",
+    });
+  });
+
+  revalidatePath(`/admin/orders/${orderId}`);
+  revalidatePath("/admin/orders");
+  return {};
+}
+
+// ---------------------------------------------------------------------------
+// Workflow — Marquer "Emballé" (MARK_PACKED : Admin / Agent / Livreur)
+// ---------------------------------------------------------------------------
+
+export async function markPacked(formData: FormData): Promise<{ error?: string }> {
+  const orderId   = Number(formData.get("orderId"));
+  const staffId   = Number(formData.get("staffId")) || null;
+  const actorRole = String(formData.get("actorRole") ?? "") as StaffRole;
+
+  if (!orderId) return { error: "orderId manquant." };
+
+  try { requireAccess(actorRole, "MARK_PACKED"); }
+  catch (e) { if (e instanceof RBACError) return { error: e.message }; throw e; }
+
+  let staffName: string | null = null;
+  if (staffId) {
+    const [m] = await db.select({ name: staff.name }).from(staff).where(eq(staff.id, staffId));
+    staffName = m?.name ?? null;
+  }
+
+  await db.transaction(async (tx) => {
+    await tx.update(orders).set({ packedBy: staffId, updatedAt: new Date() }).where(eq(orders.id, orderId));
+    await tx.insert(workflowEvents).values({ orderId, staffId, staffName, action: "PACKED", note: `Emballé par ${staffName ?? "inconnu"}` });
+  });
+
+  revalidatePath(`/admin/orders/${orderId}`);
+  return {};
+}
+
+// ---------------------------------------------------------------------------
+// Workflow — Marquer "Préparé" (MARK_PREPARED : Admin / Agent)
+// ---------------------------------------------------------------------------
+
+export async function markPrepared(formData: FormData): Promise<{ error?: string }> {
+  const orderId   = Number(formData.get("orderId"));
+  const staffId   = Number(formData.get("staffId")) || null;
+  const actorRole = String(formData.get("actorRole") ?? "") as StaffRole;
+
+  if (!orderId) return { error: "orderId manquant." };
+
+  try { requireAccess(actorRole, "MARK_PREPARED"); }
+  catch (e) { if (e instanceof RBACError) return { error: e.message }; throw e; }
+
+  let staffName: string | null = null;
+  if (staffId) {
+    const [m] = await db.select({ name: staff.name }).from(staff).where(eq(staff.id, staffId));
+    staffName = m?.name ?? null;
+  }
+
+  await db.transaction(async (tx) => {
+    await tx.update(orders).set({ preparedBy: staffId, updatedAt: new Date() }).where(eq(orders.id, orderId));
+    await tx.insert(workflowEvents).values({ orderId, staffId, staffName, action: "PREPARED", note: `Préparé par ${staffName ?? "inconnu"}` });
+  });
+
+  revalidatePath(`/admin/orders/${orderId}`);
+  return {};
 }
 
 // ---------------------------------------------------------------------------

@@ -3,11 +3,12 @@
  * Server Component (pas de "use client" nécessaire).
  */
 const LINKS = [
-  { href: "/admin/dashboard",  label: "Dashboard",  icon: "📊" },
-  { href: "/admin/orders",     label: "Commandes",  icon: "📦" },
-  { href: "/admin/products",   label: "Produits",   icon: "🌿" },
-  { href: "/admin/customers",  label: "Clients",    icon: "👥" },
-  { href: "/admin/analytics",  label: "Analytique", icon: "📈" },
+  { href: "/admin/dashboard",   label: "Dashboard",   icon: "📊" },
+  { href: "/admin/orders",      label: "Commandes",   icon: "📦" },
+  { href: "/admin/products",    label: "Produits",    icon: "🌿" },
+  { href: "/admin/customers",   label: "Clients",     icon: "👥" },
+  { href: "/admin/analytics",   label: "Analytique",  icon: "📈" },
+  { href: "/admin/mon-espace",  label: "Mon Espace",  icon: "👤" },
 ];
 
 export function AdminNav({ active }: { active: string }) {
