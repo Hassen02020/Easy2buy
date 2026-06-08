@@ -172,6 +172,24 @@ export function Header({ lang, setLang, onScrollCatalogue, onScrollOrder }: Head
           {/* ── Right icons ─────────────────────────────────────────────── */}
           <div className="flex items-center gap-1">
 
+            {/* Lang switcher — mobile only (compact pills) */}
+            <div className="md:hidden flex items-center bg-gray-100 rounded-xl p-0.5">
+              {(["fr", "ar"] as Lang[]).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  aria-label={l === "fr" ? "Français" : "العربية"}
+                  className={`flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg text-xs font-bold transition-all min-h-[36px] min-w-[36px] ${
+                    lang === l
+                      ? "bg-white text-forest-700 shadow"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
+                >
+                  <span className="text-sm leading-none">{l === "fr" ? "🇫🇷" : "🇹🇳"}</span>
+                </button>
+              ))}
+            </div>
+
             {/* Search toggle */}
             <button
               onClick={searchOpen ? () => setSearchOpen(false) : openSearch}
