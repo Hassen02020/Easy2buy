@@ -147,9 +147,9 @@ export default function HomePage() {
         {[
           "https://cdn.converty.shop/images/4f9a848a26f7e8024ce6cce8174148fb5ac16bf88789bee0d8cc9acf6ae46712_lg.webp",  // jasmin tunisien
           "https://cdn.converty.shop/images/b6163e6182b8231fcbe57a6416026f5192b5f1d94bb5721eca78bd2e78b3e62f_lg.webp",  // lavande
-          "https://images.unsplash.com/photo-1609780447631-05b93e5a88ea?w=1600&q=85",  // olivier
-          "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=1600&q=85",  // figuier
-          "https://images.unsplash.com/photo-1595435742656-5272d0b3fa82?w=1600&q=85",  // pêcher
+          "https://cdn.converty.shop/images/459a2116233e325882882c1678454a6b96b25646e1462026e83bb4b643e10212_lg.webp",  // banner jardin
+          "https://cdn.converty.shop/images/4b8becd1eafab5f8a8ee7cddf18f3a0d05677f02f22861ab929f375d3c128aba_lg.webp",  // jasmin 2
+          "https://cdn.converty.shop/images/6ce07f2a410461930fc5e38f2b4e363c8e9e5afd80836aabd976ef3b14c3e559_lg.webp",  // lavande 2
         ].map((src, i) => (
           <motion.div
             key={src}
