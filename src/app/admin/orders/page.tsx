@@ -13,8 +13,7 @@ import { AdminNav } from "@/components/AdminNav";
 import { orders } from "@/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import type { OrderStatus } from "@/db/schema";
-import { notifyOrderStatusChange } from "@/lib/notifications";
-import { revalidatePath } from "next/cache";
+import { OrderStatusForm } from "@/components/OrderStatusForm";
 
 // ---------------------------------------------------------------------------
 // DB helper (extracted so it can be called inside try/catch)
@@ -64,38 +63,6 @@ const STATUS_LABELS: Record<OrderStatus, { label: string; color: string }> = {
 };
 
 const ALL_STATUSES = Object.keys(STATUS_LABELS) as OrderStatus[];
-
-// ---------------------------------------------------------------------------
-// Server Action — mise à jour du statut
-// ---------------------------------------------------------------------------
-
-async function updateOrderStatus(formData: FormData) {
-  "use server";
-
-  const orderId = Number(formData.get("orderId"));
-  const newStatus = formData.get("status") as OrderStatus;
-
-  if (!orderId || !ALL_STATUSES.includes(newStatus)) return;
-
-  await db
-    .update(orders)
-    .set({ status: newStatus, updatedAt: new Date() })
-    .where(eq(orders.id, orderId));
-
-  // Déclencher la notification si passage à CONFIRMED
-  if (newStatus === "CONFIRMED") {
-    const [order] = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.id, orderId));
-
-    if (order) {
-      void notifyOrderStatusChange({ order, channel: "both" });
-    }
-  }
-
-  revalidatePath("/admin/orders");
-}
 
 // ---------------------------------------------------------------------------
 // Page
@@ -232,15 +199,6 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
                         {STATUS_LABELS[order.status].label}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-400 text-xs">
-                      {order.createdAt.toLocaleDateString("fr-FR", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </td>
                     <td className="px-4 py-3 min-w-[140px]">
                       {order.paymentStatus === "FULLY_PAID" && (
                         <div className="space-y-0.5">
@@ -272,27 +230,20 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
                         </div>
                       )}
                     </td>
+                    <td className="px-4 py-3 text-gray-400 text-xs whitespace-nowrap">
+                      {order.createdAt.toLocaleDateString("fr-FR", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </td>
                     <td className="px-4 py-3">
-                      <form action={updateOrderStatus}>
-                        <input type="hidden" name="orderId" value={order.id} />
-                        <select
-                          name="status"
-                          defaultValue={order.status}
-                          className="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white focus:outline-none focus:ring-1 focus:ring-green-500"
-                        >
-                          {ALL_STATUSES.map((s) => (
-                            <option key={s} value={s}>
-                              {STATUS_LABELS[s].label}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          type="submit"
-                          className="ml-2 text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg transition-colors"
-                        >
-                          OK
-                        </button>
-                      </form>
+                      <OrderStatusForm
+                        orderId={order.id}
+                        currentStatus={order.status}
+                      />
                     </td>
                   </tr>
                 ))}
