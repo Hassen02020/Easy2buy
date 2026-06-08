@@ -67,3 +67,37 @@
     display: none;
   }
 }
+
+/* ── Vendor prefix fixes (cross-browser compatibility) ── */
+
+/* backdrop-filter: Safari 9+ */
+.backdrop-blur,
+[class*="backdrop-"] {
+  -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+  backdrop-filter:         var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+}
+
+/* user-select: Safari 3+, IE/Edge */
+* {
+  -webkit-user-select: inherit;
+  -ms-user-select:     inherit;
+  user-select:         inherit;
+}
+
+/* appearance: webkit prefix order */
+input, button, select, textarea {
+  -webkit-appearance: none;
+  appearance:         auto;
+}
+
+/* gradient text / background-clip: webkit prefix order */
+.bg-clip-text {
+  -webkit-background-clip: text;
+  background-clip:         text;
+}
+
+/* mask-image: Edge 79+ */
+[class*="mask-"] {
+  -webkit-mask-image: var(--tw-mask-image, none);
+  mask-image:         var(--tw-mask-image, none);
+}
