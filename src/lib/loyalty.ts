@@ -143,7 +143,7 @@ export async function upsertCustomerProfile(phone: string, name: string) {
       cancelledOrders: sql<number>`count(*) filter (where status = 'CANCELLED')::int`,
       returnedOrders:  sql<number>`count(*) filter (where status = 'RETURNED')::int`,
       totalSpent:      sql<number>`coalesce(sum(case when status = 'DELIVERED' then total::numeric else 0 end), 0)`,
-      lastOrderAt:     sql<Date>`max(created_at)`,
+      lastOrderAt:     sql<string>`max(created_at)`,
     })
     .from(orders)
     .where(eq(orders.customerPhone, phone));
@@ -202,7 +202,7 @@ export async function upsertCustomerProfile(phone: string, name: string) {
       isBlacklisted,
       blacklistReason: autoBlacklist.reason,
       blacklistedAt:   isBlacklisted && !wasBlacklisted ? new Date() : undefined,
-      lastOrderAt:     s.lastOrderAt,
+      lastOrderAt:     s.lastOrderAt ? new Date(s.lastOrderAt) : undefined,
     })
     .onConflictDoUpdate({
       target: customerProfiles.phone,
@@ -220,7 +220,7 @@ export async function upsertCustomerProfile(phone: string, name: string) {
         isBlacklisted,
         blacklistReason: sql`CASE WHEN ${isBlacklisted} AND NOT is_blacklisted THEN ${autoBlacklist.reason} ELSE blacklist_reason END`,
         blacklistedAt:   sql`CASE WHEN ${isBlacklisted} AND NOT is_blacklisted THEN NOW() ELSE blacklisted_at END`,
-        lastOrderAt:     s.lastOrderAt,
+        lastOrderAt:     s.lastOrderAt ? new Date(s.lastOrderAt) : undefined,
         updatedAt:       new Date(),
       },
     });
