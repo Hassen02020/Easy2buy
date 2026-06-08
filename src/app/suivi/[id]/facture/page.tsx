@@ -67,7 +67,7 @@ export default async function FacturePage({
           {/* En-tête */}
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-extrabold text-forest-700 tracking-tight">🌿 Jardin Delivery</h1>
+              <h1 className="text-2xl font-extrabold text-forest-700 tracking-tight">🌿 Easy2Buy</h1>
               <p className="text-xs text-gray-400 mt-1">Livraison de plantes à domicile — Tunisie</p>
             </div>
             <div className="text-right">
@@ -85,9 +85,9 @@ export default async function FacturePage({
           <div className="grid grid-cols-2 gap-6">
             <div>
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Émetteur</p>
-              <p className="font-bold text-gray-800">Jardin Delivery</p>
+              <p className="font-bold text-gray-800">Easy2Buy</p>
               <p className="text-gray-500">Tunisie</p>
-              <p className="text-gray-500">contact@jardindelivery.tn</p>
+              <p className="text-gray-500">contact@easy2buy.tn</p>
             </div>
             <div>
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Destinataire</p>
@@ -162,7 +162,7 @@ export default async function FacturePage({
 
           {/* Pied de page */}
           <div className="text-center text-xs text-gray-300 pt-2">
-            Merci pour votre commande 🌱 — Jardin Delivery, Tunisie
+            Merci pour votre commande 🌱 — Easy2Buy, Tunisie
           </div>
         </div>
       </div>

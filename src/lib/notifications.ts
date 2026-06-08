@@ -40,11 +40,11 @@ function buildWhatsAppMessage(order: OrderNotificationPayload["order"]): string 
   const label = statusLabels[order.status] ?? order.status;
 
   return [
-    `*JardinDelivery* 🌿`,
+    `*Easy2Buy* 🌿`,
     ``,
     `Bonjour ${order.customerName},`,
     `Votre commande #${order.id} est ${label}.`,
-    `Montant total : ${Number(order.total).toFixed(2)} €`,
+    `Montant total : ${Number(order.total).toFixed(3)} TND`,
     ``,
     `Merci pour votre confiance !`,
   ].join("\n");
@@ -105,7 +105,7 @@ async function sendEmail(order: OrderNotificationPayload["order"]): Promise<void
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "JardinDelivery <noreply@jardindelivery.tn>",
+      from: "Easy2Buy <noreply@easy2buy.tn>",
       to: [NOTIFICATION_EMAIL_TO],
       subject: `Commande #${order.id} — ${order.status}`,
       text: buildWhatsAppMessage(order),

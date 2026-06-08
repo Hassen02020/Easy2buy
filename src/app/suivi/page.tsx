@@ -108,7 +108,7 @@ export default function SuiviPage() {
       <header className="bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2 text-forest-700 font-extrabold text-lg">
-            <Leaf size={22} className="text-forest-500" /> Jardin Delivery
+            <Leaf size={22} className="text-forest-500" /> Easy2Buy
           </a>
           <span className="text-sm text-gray-400">Suivi de commande</span>
         </div>
