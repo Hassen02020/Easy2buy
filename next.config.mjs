@@ -15,6 +15,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "cdn.converty.shop",
       },
+      {
+        protocol: "https",
+        hostname: "upload.wikimedia.org",
+      },
     ],
   },
 };

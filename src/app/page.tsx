@@ -145,11 +145,11 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-forest-900 via-forest-800 to-forest-600 text-white min-h-[90vh] flex items-center">
         {/* Slideshow arrière-plan jardins tunisiens */}
         {[
-          "https://cdn.converty.shop/images/4f9a848a26f7e8024ce6cce8174148fb5ac16bf88789bee0d8cc9acf6ae46712_lg.webp",  // jasmin tunisien
-          "https://cdn.converty.shop/images/b6163e6182b8231fcbe57a6416026f5192b5f1d94bb5721eca78bd2e78b3e62f_lg.webp",  // lavande
-          "https://cdn.converty.shop/images/459a2116233e325882882c1678454a6b96b25646e1462026e83bb4b643e10212_lg.webp",  // banner jardin
-          "https://cdn.converty.shop/images/4b8becd1eafab5f8a8ee7cddf18f3a0d05677f02f22861ab929f375d3c128aba_lg.webp",  // jasmin 2
-          "https://cdn.converty.shop/images/6ce07f2a410461930fc5e38f2b4e363c8e9e5afd80836aabd976ef3b14c3e559_lg.webp",  // lavande 2
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Jasminum_officinale_flowers.jpg/1280px-Jasminum_officinale_flowers.jpg",  // jasmin
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Lavandula_angustifolia_%28Common_Lavender%29.jpg/1280px-Lavandula_angustifolia_%28Common_Lavender%29.jpg",  // lavande
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Olivesfromjordan.jpg/1280px-Olivesfromjordan.jpg",  // olivier
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Pomegranate_fruit_-_whole_and_piece.jpg/1280px-Pomegranate_fruit_-_whole_and_piece.jpg",  // grenadier
+          "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Olive_Trees_in_Tunisia.jpg/1280px-Olive_Trees_in_Tunisia.jpg",  // oliviers tunisie
         ].map((src, i) => (
           <motion.div
             key={src}
