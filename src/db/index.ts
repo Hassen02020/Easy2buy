@@ -12,11 +12,14 @@ const connectionString = process.env.DATABASE_URL!;
  *
  * NOTE: Ne jamais utiliser `prepare: true` avec PgBouncer en mode transaction.
  */
+const isServerless = process.env.VERCEL === "1" || process.env.NODE_ENV === "production";
+
 const poolClient = postgres(connectionString, {
-  max: 10,
-  idle_timeout: 30,
+  max: isServerless ? 1 : 10,
+  idle_timeout: isServerless ? 20 : 30,
   connect_timeout: 10,
   prepare: false,
+  ssl: isServerless ? "require" : false,
 });
 
 export const db = drizzle(poolClient, { schema });

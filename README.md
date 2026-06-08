@@ -52,3 +52,30 @@ src/
 ```env
 DATABASE_URL=postgres://user:password@host:5432/jardin_delivery
 ```
+
+## Déploiement Vercel
+
+### 1. Base de données — Neon (PostgreSQL serverless gratuit)
+
+1. Créer un compte sur [neon.tech](https://neon.tech)
+2. Créer un projet → copier la **Connection string** (format `postgresql://...?sslmode=require`)
+3. Exécuter les migrations sur Neon :
+   ```bash
+   DATABASE_URL="postgresql://..." npm run db:push
+   ```
+
+### 2. Déploiement sur Vercel
+
+1. Aller sur [vercel.com](https://vercel.com) → **Add New Project**
+2. Importer le repo GitHub `Hassen02020/Easy2buy`
+3. Dans **Environment Variables**, ajouter :
+   - `DATABASE_URL` → coller la connection string Neon
+4. Cliquer **Deploy** ✅
+
+### 3. Variables optionnelles
+
+| Variable | Description |
+|----------|-------------|
+| `TWILIO_ACCOUNT_SID` | Notifications WhatsApp |
+| `TWILIO_AUTH_TOKEN` | Notifications WhatsApp |
+| `RESEND_API_KEY` | Notifications email |
