@@ -145,11 +145,11 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-forest-900 via-forest-800 to-forest-600 text-white min-h-[90vh] flex items-center">
         {/* Slideshow arrière-plan jardins tunisiens */}
         {[
-          "https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=1600&q=85",  // bougainvillées roses éclatantes
-          "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=1600&q=85",  // jardin méditerranéen coloré
-          "https://images.unsplash.com/photo-1464820453369-31d2c0b651af?w=1600&q=85",  // fleurs estivales lumineuses
-          "https://images.unsplash.com/photo-1585320806297-9794b3e4aaae?w=1600&q=85",  // palmiers et plantes tropicales
-          "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1600&q=85",  // jardin fleuri soleil d'été
+          "https://cdn.converty.shop/images/4f9a848a26f7e8024ce6cce8174148fb5ac16bf88789bee0d8cc9acf6ae46712_lg.webp",  // jasmin tunisien
+          "https://cdn.converty.shop/images/b6163e6182b8231fcbe57a6416026f5192b5f1d94bb5721eca78bd2e78b3e62f_lg.webp",  // lavande
+          "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=1600&q=85",  // olivier
+          "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=1600&q=85",  // figuier
+          "https://images.unsplash.com/photo-1547514701-42782101795e?w=1600&q=85",      // citronnier
         ].map((src, i) => (
           <motion.div
             key={src}
