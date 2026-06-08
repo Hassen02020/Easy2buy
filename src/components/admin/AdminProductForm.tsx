@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { upsertProduct } from "@/app/admin/actions";
 import type { Product } from "@/db/schema";
-import { Loader2, Save, X, Plus, Trash2, PlayCircle } from "lucide-react";
+import { Loader2, Save, X, Trash2, ImagePlus } from "lucide-react";
 
 interface Props {
   product?: Product;
@@ -43,7 +43,30 @@ export default function AdminProductForm({ product, onClose }: Props) {
   const [images, setImages]     = useState<string[]>(
     parseJson<string[]>(product?.images, product?.imageUrl ? [product.imageUrl] : [])
   );
-  const [imgInput, setImgInput] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.url) {
+        setImages(p => [...p, data.url]);
+      } else {
+        alert(data.error ?? "Erreur upload");
+      }
+    } catch {
+      alert("Erreur lors de l'upload");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
 
   // Zones climatiques
   const [zones, setZones] = useState<string[]>(
@@ -118,19 +141,30 @@ export default function AdminProductForm({ product, onClose }: Props) {
       {/* ── Galerie images ── */}
       {section("Galerie photos", "🖼️")}
       <div className="space-y-2">
-        <div className="flex gap-2">
+        <div>
           <input
-            type="url"
-            value={imgInput}
-            onChange={e => setImgInput(e.target.value)}
-            placeholder="https://... (URL image)"
-            className="flex-1 rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400"
+            ref={fileInputRef}
+            id="img-upload"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            className="hidden"
+            onChange={handleFileUpload}
+            disabled={uploading}
           />
-          <button type="button"
-            onClick={() => { if (imgInput.trim()) { setImages(p => [...p, imgInput.trim()]); setImgInput(""); } }}
-            className="flex items-center gap-1 bg-forest-600 hover:bg-forest-700 text-white px-3 py-2 rounded-xl text-sm font-semibold transition-colors">
-            <Plus size={14} /> Ajouter
-          </button>
+          <label
+            htmlFor="img-upload"
+            className={`flex items-center justify-center gap-2 w-full border-2 border-dashed rounded-xl py-4 cursor-pointer transition-colors text-sm font-semibold ${
+              uploading
+                ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+                : "border-forest-300 hover:border-forest-500 hover:bg-forest-50 text-forest-600"
+            }`}
+          >
+            {uploading ? (
+              <><Loader2 size={16} className="animate-spin" /> Upload en cours…</>
+            ) : (
+              <><ImagePlus size={16} /> Cliquez pour ajouter une photo (JPEG, PNG, WEBP · max 5 Mo)</>
+            )}
+          </label>
         </div>
         {images.length > 0 && (
           <div className="flex flex-wrap gap-2">
