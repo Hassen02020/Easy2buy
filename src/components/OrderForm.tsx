@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useState, useRef, useEffect } from "react";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,12 +9,155 @@ import {
   Send, CheckCircle2, XCircle, Loader2,
   User, Phone, MapPin, MessageSquare, Building2,
   CreditCard, Truck, ChevronLeft, Banknote, Smartphone,
+  ChevronDown, Search,
 } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import { calculateDeliveryFee, MAX_ITEMS_PER_ORDER } from "@/lib/delivery";
 import { ContactBlock } from "@/components/ContactBlock";
 
 const MIN_ADVANCE_RATIO = 0.4; // 40% minimum
+
+// ---------------------------------------------------------------------------
+// Gouvernorats & Municipalités Tunisie
+// ---------------------------------------------------------------------------
+
+const TUNISIA_LOCATIONS: { gov: string; cities: string[] }[] = [
+  { gov: "Tunis",          cities: ["Tunis","La Marsa","Carthage","Le Bardo","La Goulette","Hammam-Lif","Ben Arous","Bou Mhel el-Bassatine","El Mourouj","Fouchana","Mornag"] },
+  { gov: "Ariana",         cities: ["Ariana","Raoued","Mnihla","Ettadhamen","Kalâat el-Andalous","Sidi Thabet","La Soukra","Borj Louzir"] },
+  { gov: "Ben Arous",      cities: ["Ben Arous","Hammam-Lif","Hammam Chott","Bou Mhel el-Bassatine","Ezzahra","Radès","Mégrine","Mohamadia","Mornag","El Mourouj","Khalidia","Medina Jedida"] },
+  { gov: "Manouba",        cities: ["Manouba","Douar Hicher","Oued Ellil","Tebourba","El Batan","Djedeida","Mornaguia","Borj Amri"] },
+  { gov: "Nabeul",         cities: ["Nabeul","Hammamet","Kelibia","Menzel Temime","Grombalia","Soliman","Bir Bou Rekba","Takelsa","Beni Khalled","Korba","Maamoura","El Haouaria","Dar Chaabane"] },
+  { gov: "Zaghouan",       cities: ["Zaghouan","Zriba","Bir Mcherga","El Fahs","Nadhour","Saouaf"] },
+  { gov: "Bizerte",        cities: ["Bizerte","Menzel Bourguiba","Mateur","Ras Jebel","Menzel Jemil","Tinja","Utique","Ghezala","Joumine","Sejnane","Aousja"] },
+  { gov: "Béja",           cities: ["Béja","Testour","Téboursouk","Medjez el-Bab","Amdoun","Goubellat","Nefza","Thibar"] },
+  { gov: "Jendouba",       cities: ["Jendouba","Tabarka","Aïn Draham","Fernana","Ghardimaou","Oued Melliz","Bou Salem","Balta-Bou Aouane"] },
+  { gov: "Le Kef",         cities: ["Le Kef","Dahmani","Tajerouine","Kalaat Senan","Sers","Nebeur","Sakiet Sidi Youssef","Touiref","El Ksour","Jerissa"] },
+  { gov: "Siliana",        cities: ["Siliana","Bou Arada","Gaâfour","El Krib","El Aroussa","Kesra","Makthar","Rohia","Sidi Bou Rouis","Bargou"] },
+  { gov: "Sousse",         cities: ["Sousse","Hammam Sousse","Kalâa Kebira","Akouda","Msaken","Sidi Bou Ali","Enfidha","Hergla","Kondar","Sidi El Hani","Kalâa Sghira","Ksar Hellal"] },
+  { gov: "Monastir",       cities: ["Monastir","Ksar Hellal","Bembla","Ouardanine","Sahline","Téboulba","Moknine","Zeramdine","Jammel","Bekalta","Beni Hassen","Sayada"] },
+  { gov: "Mahdia",         cities: ["Mahdia","El Jem","Chebba","Ksour Essef","Sidi Alouane","Bou Merdes","Ouled Chamakh","Hebira","Melloulèche"] },
+  { gov: "Sfax",           cities: ["Sfax","Sakiet Ezzit","Sakiet Eddaïer","Thyna","El Aïn","Bir Ali Ben Khalifa","Agareb","Jebeniana","Mahres","Kerkenah","Menzel Chaker","Ghraiba","El Hencha"] },
+  { gov: "Kairouan",       cities: ["Kairouan","Sbikha","El Alâa","Nasrallah","El Oueslatia","Haffouz","Chebika","Bouhajla","Menzel Mehiri","Hajeb El Aïoun"] },
+  { gov: "Kasserine",      cities: ["Kasserine","Sbeitla","Sbeïtla","Thala","Feriana","Foussana","El Ayoun","Hassi El Ferid","Jdliane","Majel Bel Abbès","Ezzouhour"] },
+  { gov: "Sidi Bouzid",    cities: ["Sidi Bouzid","Regueb","Ouled Haffouz","Bir El Hafey","Sidi Ali Ben Aoun","Meknassy","Souk Jedid","Mezzouna","Jilma","Cebbala","Menzel Bouzaïane"] },
+  { gov: "Gabès",          cities: ["Gabès","El Hamma","Mareth","Matmata","Nouvelle Matmata","Menzel El Habib","Ghannouche","Ghannouch","Métouia","Kettana"] },
+  { gov: "Médenine",       cities: ["Médenine","Zarzis","Ben Gardane","Jerba - Houmt Souk","Jerba - Midoun","Jerba - Ajim","Sidi Makhlouf","Beni Khedache"] },
+  { gov: "Tataouine",      cities: ["Tataouine","Ghomrassen","Bir Lahmar","Smar","Remada","Dhehiba"] },
+  { gov: "Gafsa",          cities: ["Gafsa","Métlaoui","Mdhilla","El Guettar","Belkhir","Sened","El Ksar","Redeyef","Moularès","Sidi Aïch"] },
+  { gov: "Tozeur",         cities: ["Tozeur","Nefta","Degache","Hazoua","Tameghza"] },
+  { gov: "Kébili",         cities: ["Kébili","Douz","Souk Lahad","El Faouar","Jemna"] },
+];
+
+// Flat list pour la recherche
+const ALL_CITIES = TUNISIA_LOCATIONS.flatMap(({ gov, cities }) =>
+  cities.map((c) => ({ label: c, gov }))
+);
+
+// ---------------------------------------------------------------------------
+// CityCombobox component
+// ---------------------------------------------------------------------------
+
+function CityCombobox({
+  value,
+  onChange,
+  hasError,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  hasError: boolean;
+}) {
+  const [open, setOpen]   = useState(false);
+  const [query, setQuery] = useState(value);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Sync query when value changes externally
+  useEffect(() => { setQuery(value); }, [value]);
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const filtered = query.length < 1
+    ? ALL_CITIES.slice(0, 30)
+    : ALL_CITIES.filter((c) =>
+        c.label.toLowerCase().includes(query.toLowerCase()) ||
+        c.gov.toLowerCase().includes(query.toLowerCase())
+      ).slice(0, 40);
+
+  const handleSelect = (label: string) => {
+    setQuery(label);
+    onChange(label);
+    setOpen(false);
+  };
+
+  return (
+    <div ref={ref} className="relative">
+      <div className={`flex items-center border rounded-xl ${
+        hasError ? "border-red-400 bg-red-50" : "border-gray-200 bg-white"
+      } focus-within:ring-2 ${
+        hasError ? "focus-within:ring-red-400" : "focus-within:ring-forest-400"
+      } transition overflow-hidden`}>
+        <Search size={14} className="ml-3 text-gray-400 shrink-0" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); onChange(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          placeholder="Tunis, Sousse, Sfax…"
+          autoComplete="off"
+          className="flex-1 px-3 py-3 text-sm text-gray-800 placeholder-gray-400 bg-transparent outline-none"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+        />
+        <button
+          type="button"
+          tabIndex={-1}
+          onClick={() => setOpen((o) => !o)}
+          className="px-3 text-gray-400 hover:text-gray-600"
+          aria-label="Afficher la liste"
+        >
+          <ChevronDown size={16} className={`transition-transform ${open ? "rotate-180" : ""}`} />
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {open && filtered.length > 0 && (
+          <motion.ul
+            key="dropdown"
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.15 }}
+            role="listbox"
+            className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-xl max-h-56 overflow-y-auto scrollbar-hide"
+          >
+            {filtered.map(({ label, gov }) => (
+              <li
+                key={`${gov}-${label}`}
+                role="option"
+                aria-selected={value === label}
+                onMouseDown={() => handleSelect(label)}
+                className={`flex items-center justify-between px-4 py-2.5 cursor-pointer text-sm transition-colors ${
+                  value === label
+                    ? "bg-forest-50 text-forest-700 font-semibold"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <span>{label}</span>
+                <span className="text-[10px] text-gray-400 font-medium">{gov}</span>
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Schemas
@@ -90,9 +233,22 @@ export function OrderForm({ onSuccess }: OrderFormProps) {
   const [orderId, setOrderId]      = useState<number | null>(null);
 
   // Customer form
-  const { register, handleSubmit, getValues, control, formState: { errors } } = useForm<CustomerData>({
+  const { register, handleSubmit, getValues, setValue, control, formState: { errors } } = useForm<CustomerData>({
     resolver: zodResolver(customerSchema),
   });
+
+  // Adresse livraison == adresse client
+  const [sameAddress, setSameAddress] = useState(true);
+  const cityValue2 = useWatch({ control, name: "city", defaultValue: "" });
+
+  const handleSameAddress = (checked: boolean) => {
+    setSameAddress(checked);
+    if (checked) {
+      setValue("address", cityValue2 ? `${cityValue2} — à préciser` : "", { shouldValidate: false });
+    } else {
+      setValue("address", "", { shouldValidate: false });
+    }
+  };
 
   // Payment state
   const [payMode, setPayMode]           = useState<PaymentMode>("COD");
@@ -130,7 +286,7 @@ export function OrderForm({ onSuccess }: OrderFormProps) {
   const subtotal = totalPrice();
 
   // Calcul dynamique selon la ville saisie
-  const cityValue = useWatch({ control, name: "city", defaultValue: "" });
+  const cityValue = cityValue2;
   const totalQty = items.reduce((s, i) => s + i.quantity, 0);
   const deliveryQuote = calculateDeliveryFee(cityValue ?? "");
   const deliveryFee = deliveryQuote.fee;
@@ -277,18 +433,66 @@ export function OrderForm({ onSuccess }: OrderFormProps) {
 
               <div>
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5 mb-1.5">
-                  <Building2 size={14} className="text-forest-500" /> Ville
+                  <Building2 size={14} className="text-forest-500" /> Gouvernorat / Municipalité
                 </label>
-                <input {...register("city")} placeholder="Tunis, Sousse, Sfax..." className={inputCls(!!errors.city)} autoComplete="address-level2" />
+                <Controller
+                  control={control}
+                  name="city"
+                  render={({ field }) => (
+                    <CityCombobox
+                      value={field.value ?? ""}
+                      onChange={field.onChange}
+                      hasError={!!errors.city}
+                    />
+                  )}
+                />
                 {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city.message}</p>}
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5 mb-1.5">
-                  <MapPin size={14} className="text-forest-500" /> Adresse de livraison
-                </label>
-                <textarea {...register("address")} rows={3} placeholder="Rue, quartier, immeuble..." className={inputCls(!!errors.address)} autoComplete="street-address" />
-                {errors.address && <p className="mt-1 text-xs text-red-500">{errors.address.message}</p>}
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                    <MapPin size={14} className="text-forest-500" /> Adresse de livraison
+                  </label>
+                  {/* Toggle même adresse */}
+                  <label className="flex items-center gap-2 cursor-pointer select-none">
+                    <div
+                      onClick={() => handleSameAddress(!sameAddress)}
+                      className={`relative w-9 h-5 rounded-full transition-colors ${
+                        sameAddress ? "bg-forest-500" : "bg-gray-300"
+                      }`}
+                    >
+                      <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${
+                        sameAddress ? "translate-x-4" : "translate-x-0"
+                      }`} />
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium">
+                      {sameAddress ? "Même adresse" : "Autre adresse"}
+                    </span>
+                  </label>
+                </div>
+
+                {sameAddress ? (
+                  <div className="flex items-center gap-2 bg-forest-50 border border-forest-200 rounded-xl px-4 py-3 text-sm text-forest-700">
+                    <MapPin size={14} className="text-forest-500 shrink-0" />
+                    <span className="flex-1">
+                      {cityValue && cityValue.length >= 2
+                        ? <>Livraison à <strong>{cityValue}</strong> — vous préciserez l&apos;adresse exacte à notre équipe.</>  
+                        : "Sélectionnez d'abord votre ville ci-dessus."}
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <textarea
+                      {...register("address")}
+                      rows={3}
+                      placeholder="Rue, quartier, immeuble, numéro…"
+                      className={inputCls(!!errors.address)}
+                      autoComplete="street-address"
+                    />
+                    {errors.address && <p className="mt-1 text-xs text-red-500">{errors.address.message}</p>}
+                  </>
+                )}
               </div>
 
               <div>
