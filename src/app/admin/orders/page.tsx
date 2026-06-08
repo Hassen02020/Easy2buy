@@ -218,10 +218,10 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
                     </td>
                     <td className="px-4 py-3 text-gray-600">{order.customerCity}</td>
                     <td className="px-4 py-3 font-bold text-gray-900">
-                      {Number(order.total).toFixed(2)} €
+                      {Number(order.total).toFixed(3)} TND
                     </td>
                     <td className="px-4 py-3 text-gray-500">
-                      {Number(order.deliveryFee).toFixed(2)} €
+                      {Number(order.deliveryFee).toFixed(3)} TND
                     </td>
                     <td className="px-4 py-3">
                       <span
