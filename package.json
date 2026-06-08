@@ -1,0 +1,42 @@
+{
+  "name": "jardin-delivery",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.0.1",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.44.1",
+    "framer-motion": "^12.16.0",
+    "lucide-react": "^0.515.0",
+    "next": "^16.2.7",
+    "postgres": "^3.4.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.56.4",
+    "tailwind-merge": "^3.3.1",
+    "zod": "^3.25.42",
+    "zustand": "^5.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10",
+    "dotenv": "^17.4.2",
+    "drizzle-kit": "^0.31.1",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.3",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5"
+  }
+}
