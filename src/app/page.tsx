@@ -145,11 +145,11 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-forest-900 via-forest-800 to-forest-600 text-white min-h-[90vh] flex items-center">
         {/* Slideshow arrière-plan jardins tunisiens */}
         {[
-          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80",  // jasmin
-          "https://images.unsplash.com/photo-1468327768560-75b778cbb551?w=1600&q=80",  // lavande
-          "https://images.unsplash.com/photo-1593357849668-f8e1e62c8e21?w=1600&q=80",  // olivier
-          "https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=1600&q=80",  // grenadier
-          "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=1600&q=80",  // jardin
+          "https://images.unsplash.com/photo-1490750967868-88df5691cc88?w=1600&q=80",  // jasmin
+          "https://images.unsplash.com/photo-1499744937866-d7e566a20a61?w=1600&q=80",  // lavande
+          "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=1600&q=80",  // olivier
+          "https://images.unsplash.com/photo-1595435742656-5272d0b3fa82?w=1600&q=80",  // pêcher
+          "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1600&q=80",  // jardin
         ].map((src, i) => (
           <motion.div
             key={src}

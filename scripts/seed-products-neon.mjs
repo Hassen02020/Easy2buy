@@ -9,14 +9,14 @@ if (!DATABASE_URL) {
 const sql = postgres(DATABASE_URL, { ssl: "require" });
 
 const products = [
-  { id: 1, slug: "jasmin-tunisien",        name: "Jasmin Tunisien",        price: "34.000", purchase_price: "12.000", stock: 50, category: "exterieur", image_url: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",  active: true },
-  { id: 2, slug: "lavande",                name: "Lavande",                price: "34.000", purchase_price: "12.000", stock: 50, category: "exterieur", image_url: "https://images.unsplash.com/photo-1468327768560-75b778cbb551?w=600&q=80",  active: true },
-  { id: 3, slug: "olivier-tunisien",       name: "Olivier Tunisien",       price: "34.000", purchase_price: "14.000", stock: 40, category: "exterieur", image_url: "https://images.unsplash.com/photo-1593357849668-f8e1e62c8e21?w=600&q=80",  active: true },
-  { id: 4, slug: "grenadier",              name: "Grenadier",              price: "34.000", purchase_price: "13.000", stock: 40, category: "exterieur", image_url: "https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=600&q=80",  active: true },
-  { id: 5, slug: "figuier-commun",         name: "Figuier Commun",         price: "34.000", purchase_price: "13.000", stock: 40, category: "exterieur", image_url: "https://images.unsplash.com/photo-1536822410-e0c8df26afcb?w=600&q=80",  active: true },
-  { id: 6, slug: "oranger-citronnier",     name: "Oranger / Citronnier",   price: "34.000", purchase_price: "13.000", stock: 40, category: "exterieur", image_url: "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab12?w=600&q=80",  active: true },
-  { id: 7, slug: "pecher-de-tunisie",      name: "Pêcher de Tunisie",      price: "34.000", purchase_price: "13.000", stock: 30, category: "exterieur", image_url: "https://images.unsplash.com/photo-1629828874346-3f8c8b9e8a1d?w=600&q=80",  active: true },
-  { id: 8, slug: "pack-3-arbres-fruitiers",name: "Pack 3 Arbres Fruitiers",price: "34.000", purchase_price: "35.000", stock: 20, category: "exterieur", image_url: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=600&q=80",  active: true },
+  { id: 1, slug: "jasmin-tunisien",        name: "Jasmin Tunisien",        price: "34.000", purchase_price: "12.000", stock: 999, category: "exterieur", image_url: "https://images.unsplash.com/photo-1490750967868-88df5691cc88?w=600&q=80", active: true },
+  { id: 2, slug: "lavande",                name: "Lavande",                price: "34.000", purchase_price: "12.000", stock: 999, category: "exterieur", image_url: "https://images.unsplash.com/photo-1499744937866-d7e566a20a61?w=600&q=80", active: true },
+  { id: 3, slug: "olivier-tunisien",       name: "Olivier Tunisien",       price: "34.000", purchase_price: "14.000", stock: 999, category: "exterieur", image_url: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&q=80", active: true },
+  { id: 4, slug: "grenadier",              name: "Grenadier",              price: "34.000", purchase_price: "13.000", stock: 999, category: "exterieur", image_url: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=600&q=80", active: true },
+  { id: 5, slug: "figuier-commun",         name: "Figuier Commun",         price: "34.000", purchase_price: "13.000", stock: 999, category: "exterieur", image_url: "https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=600&q=80", active: true },
+  { id: 6, slug: "oranger-citronnier",     name: "Oranger / Citronnier",   price: "34.000", purchase_price: "13.000", stock: 999, category: "exterieur", image_url: "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=600&q=80", active: true },
+  { id: 7, slug: "pecher-de-tunisie",      name: "Pêcher de Tunisie",      price: "34.000", purchase_price: "13.000", stock: 999, category: "exterieur", image_url: "https://images.unsplash.com/photo-1595435742656-5272d0b3fa82?w=600&q=80", active: true },
+  { id: 8, slug: "pack-3-arbres-fruitiers",name: "Pack 3 Arbres Fruitiers",price: "34.000", purchase_price: "35.000", stock: 999, category: "exterieur", image_url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&q=80", active: true },
 ];
 
 try {
