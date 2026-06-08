@@ -670,11 +670,12 @@ export function OrderForm({ onSuccess }: OrderFormProps) {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1.5">
+                  <label htmlFor="field-advance" className="text-sm font-medium text-gray-700 block mb-1.5">
                     Montant de l'avance (TND)
                     <span className="ml-1 text-xs font-normal text-amber-600">minimum 40% = {(total * MIN_ADVANCE_RATIO).toFixed(3)} TND</span>
                   </label>
                   <input
+                    id="field-advance"
                     type="number"
                     value={advanceAmount}
                     onChange={e => setAdvanceAmount(e.target.value)}
@@ -706,10 +707,11 @@ export function OrderForm({ onSuccess }: OrderFormProps) {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700 block mb-1.5">
+                  <label htmlFor="field-payref" className="text-sm font-medium text-gray-700 block mb-1.5">
                     Référence de transaction <span className="text-gray-400 text-xs">(optionnel)</span>
                   </label>
                   <input
+                    id="field-payref"
                     type="text"
                     value={paymentRef}
                     onChange={e => setPaymentRef(e.target.value)}

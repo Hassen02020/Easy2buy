@@ -315,8 +315,9 @@ export default async function OrderDetailPage({ params }: PageProps) {
                     <input type="hidden" name="orderId"    value={order.id} />
                     <input type="hidden" name="role"       value={role} />
                     <input type="hidden" name="actorRole"  value="ADMIN" />
-                    <label className="text-xs text-gray-500 w-28 shrink-0">{label}</label>
+                    <label htmlFor={`assign-${role}`} className="text-xs text-gray-500 w-28 shrink-0">{label}</label>
                     <select
+                      id={`assign-${role}`}
                       name="staffId"
                       defaultValue={current ?? ""}
                       className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-forest-400"
