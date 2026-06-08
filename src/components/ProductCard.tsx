@@ -12,13 +12,14 @@ interface ProductCardProps {
   product: Product;
   allProducts?: Product[];
   index?: number;
+  lang?: "fr" | "ar";
 }
 
 const ZONE_SHORT: Record<string, string> = {
   nord: "Nord", sahel: "Sahel", cotiere: "Côte", interieur: "Int.", sud: "Sud",
 };
 
-export function ProductCard({ product, allProducts = [], index = 0 }: ProductCardProps) {
+export function ProductCard({ product, allProducts = [], index = 0, lang = "fr" }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
   const [showDetail, setShowDetail] = useState(false);
 
@@ -76,7 +77,7 @@ export function ProductCard({ product, allProducts = [], index = 0 }: ProductCar
 
         <div className="flex flex-col flex-1 p-4 gap-2">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="font-semibold text-gray-900 leading-tight">{product.name}</h3>
+            <h3 className="font-semibold text-gray-900 leading-tight">{lang === "ar" && product.nameAr ? product.nameAr : product.name}</h3>
             <span className="shrink-0 text-lg font-bold text-forest-700">
               {product.price.toFixed(3)} <span className="text-xs font-medium">TND</span>
             </span>
@@ -129,7 +130,7 @@ export function ProductCard({ product, allProducts = [], index = 0 }: ProductCar
             className="mt-1 flex items-center justify-center gap-2 bg-forest-600 hover:bg-forest-700 disabled:bg-gray-300 text-white rounded-xl py-2.5 px-4 text-sm font-semibold transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-forest-500 focus-visible:ring-offset-2"
           >
             <ShoppingCart size={16} />
-            {product.inStock ? "Ajouter au panier" : "Rupture de stock"}
+            {product.inStock ? (lang === "ar" ? "أضف للسلة" : "Ajouter au panier") : (lang === "ar" ? "غير متوفر" : "Rupture de stock")}
           </button>
         </div>
       </motion.article>

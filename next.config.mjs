@@ -17,7 +17,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "upload.wikimedia.org",
+        hostname: "source.unsplash.com",
       },
     ],
   },

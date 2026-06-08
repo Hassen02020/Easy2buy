@@ -145,11 +145,11 @@ export default function HomePage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-forest-900 via-forest-800 to-forest-600 text-white min-h-[90vh] flex items-center">
         {/* Slideshow arrière-plan jardins tunisiens */}
         {[
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Jasminum_officinale_flowers.jpg/1280px-Jasminum_officinale_flowers.jpg",  // jasmin
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Lavandula_angustifolia_%28Common_Lavender%29.jpg/1280px-Lavandula_angustifolia_%28Common_Lavender%29.jpg",  // lavande
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Olivesfromjordan.jpg/1280px-Olivesfromjordan.jpg",  // olivier
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Pomegranate_fruit_-_whole_and_piece.jpg/1280px-Pomegranate_fruit_-_whole_and_piece.jpg",  // grenadier
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Olive_Trees_in_Tunisia.jpg/1280px-Olive_Trees_in_Tunisia.jpg",  // oliviers tunisie
+          "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1600&q=80",  // jasmin
+          "https://images.unsplash.com/photo-1468327768560-75b778cbb551?w=1600&q=80",  // lavande
+          "https://images.unsplash.com/photo-1593357849668-f8e1e62c8e21?w=1600&q=80",  // olivier
+          "https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=1600&q=80",  // grenadier
+          "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=1600&q=80",  // jardin
         ].map((src, i) => (
           <motion.div
             key={src}
@@ -234,7 +234,7 @@ export default function HomePage() {
                       <Image src={p.image} alt={p.name} fill className="object-cover group-hover:scale-110 transition-transform duration-300" sizes="56px" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white font-semibold text-sm truncate">{p.name}</p>
+                      <p className="text-white font-semibold text-sm truncate">{lang === "ar" && p.nameAr ? p.nameAr : p.name}</p>
                       <p className="text-forest-300 font-bold text-sm">{p.price.toFixed(3)} TND</p>
                       {p.badge && (
                         <span className="inline-block text-[10px] bg-forest-500/40 text-forest-200 px-1.5 py-0.5 rounded-full mt-0.5">{p.badge}</span>
@@ -318,7 +318,7 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {filteredProducts.map((product, i) => (
-            <ProductCard key={product.id} product={product} allProducts={products} index={i} />
+            <ProductCard key={product.id} product={product} allProducts={products} index={i} lang={lang} />
           ))}
         </div>
       </section>
