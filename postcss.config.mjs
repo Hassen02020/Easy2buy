@@ -9,7 +9,7 @@ const config = {
         "edge >= 79",
         "firefox >= 78",
         "safari >= 9",
-        "ios_saf >= 9-9.3",
+        "ios_saf >= 9",
         "> 0.5%",
         "not dead",
       ],
