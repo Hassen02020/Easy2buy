@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ShoppingCart, Star, PlayCircle, Info } from "lucide-react";
 import { useCartStore } from "@/store/cart";
 import type { Product } from "@/types/product";
-import { ProductDetailModal } from "@/components/ProductDetailModal";
+
+const ProductDetailModal = lazy(() =>
+  import("@/components/ProductDetailModal").then(m => ({ default: m.ProductDetailModal }))
+);
 
 interface ProductCardProps {
   product: Product;
@@ -136,11 +139,13 @@ export function ProductCard({ product, allProducts = [], index = 0, lang = "fr" 
       </motion.article>
 
       {showDetail && (
-        <ProductDetailModal
-          product={product}
-          allProducts={allProducts}
-          onClose={() => setShowDetail(false)}
-        />
+        <Suspense fallback={null}>
+          <ProductDetailModal
+            product={product}
+            allProducts={allProducts}
+            onClose={() => setShowDetail(false)}
+          />
+        </Suspense>
       )}
     </>
   );

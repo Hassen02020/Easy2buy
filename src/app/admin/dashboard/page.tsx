@@ -56,8 +56,11 @@ async function getDashboardData(from?: string, to?: string, filterAgent?: string
     .where(where)
     .groupBy(orders.status);
 
-  // Tous les membres du staff
-  const allStaff = await db.select().from(staff).where(eq(staff.active, true));
+  // Tous les membres du staff (colonnes ciblées)
+  const allStaff = await db
+    .select({ id: staff.id, name: staff.name, role: staff.role })
+    .from(staff)
+    .where(eq(staff.active, true));
 
   // Performance des agents (commandes confirmées par agent)
   const agentPerf = await db
@@ -117,9 +120,22 @@ async function getDashboardData(from?: string, to?: string, filterAgent?: string
     return true;
   });
 
-  // Items pour rentabilité
-  const allItems = await db.select().from(orderItems);
-  const itemsByOrder: Record<number, typeof orderItems.$inferSelect[]> = {};
+  // Items pour rentabilité — uniquement pour les commandes récentes chargées
+  const recentOrderIds = recentOrders.map((o) => o.id);
+  const allItems = recentOrderIds.length > 0
+    ? await db
+        .select({
+          orderId:       orderItems.orderId,
+          productName:   orderItems.productName,
+          quantity:      orderItems.quantity,
+          unitPrice:     orderItems.unitPrice,
+          purchasePrice: orderItems.purchasePrice,
+          lineTotal:     orderItems.lineTotal,
+        })
+        .from(orderItems)
+        .where(sql`${orderItems.orderId} = ANY(ARRAY[${sql.join(recentOrderIds.map(id => sql`${id}`), sql`, `)}]::int[])`)
+    : [];
+  const itemsByOrder: Record<number, typeof allItems> = {};
   for (const item of allItems) {
     if (!itemsByOrder[item.orderId]) itemsByOrder[item.orderId] = [];
     itemsByOrder[item.orderId].push(item);
