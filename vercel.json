@@ -3,8 +3,5 @@
   "buildCommand": "next build",
   "devCommand": "next dev",
   "installCommand": "npm install",
-  "regions": ["cdg1"],
-  "env": {
-    "DATABASE_URL": "@database_url"
-  }
+  "regions": ["cdg1"]
 }
