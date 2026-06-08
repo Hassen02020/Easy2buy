@@ -72,8 +72,9 @@ export const products: Product[] = [
   {
     id: "6",
     name: "Lavande Vraie",
+    nameAr: "الخزامة",
     description:
-      "Parfumez votre jardin ou balcon avec cette lavande méditerranéenne aux fleurs violettes.",
+      "La lavande, touche de nature apaisante pour votre maison 💜. Parfum aromatique naturel, embellit balcon et jardin, facile d'entretien. Pousse très bien en pot ou en pleine terre. Racines solides, croissance rapide. Apporte une sensation de calme et de relaxation.",
     price: 14.9,
     image:
       "https://images.unsplash.com/photo-1499744937866-d7e566a20a61?w=600&q=80",
