@@ -136,7 +136,7 @@ export function Header({ lang, setLang, onScrollCatalogue, onScrollOrder }: Head
               href={`tel:${CONTACT.phone}`}
               className="flex items-center gap-1.5 text-gray-600 hover:text-forest-700 transition-colors"
             >
-              <Phone size={14} /> {CONTACT.phone}
+              <Phone size={14} /> <span dir="ltr">{CONTACT.phone}</span>
             </a>
 
             {/* Lang switcher */}
@@ -321,19 +321,20 @@ export function Header({ lang, setLang, onScrollCatalogue, onScrollOrder }: Head
                   { label: tr.nav.catalogue, onClick: () => handleNavClick(onScrollCatalogue), icon: <Leaf size={18} /> },
                   { label: tr.nav.order,     onClick: () => handleNavClick(onScrollOrder),     icon: <ShoppingCart size={18} /> },
                   { label: tr.nav.track,     href: "/suivi",                                   icon: <PackageSearch size={18} /> },
-                  { label: CONTACT.phone,    href: `tel:${CONTACT.phone}`,                     icon: <Phone size={18} /> },
-                ].map(({ label, onClick, href, icon }) => {
+                  { label: CONTACT.phone,    href: `tel:${CONTACT.phone}`,                     icon: <Phone size={18} />, ltr: true },
+                ].map(({ label, onClick, href, icon, ltr }) => {
                   const cls = "flex items-center gap-3 w-full px-4 py-3.5 rounded-2xl text-sm font-semibold text-gray-700 hover:bg-forest-50 hover:text-forest-700 transition-colors text-left min-h-[44px]";
+                  const labelNode = ltr ? <span dir="ltr">{label}</span> : label;
                   return href ? (
                     <a key={label} href={href} className={cls} onClick={() => setMenuOpen(false)}>
                       <span className="text-forest-500">{icon}</span>
-                      <span className="flex-1">{label}</span>
+                      <span className="flex-1">{labelNode}</span>
                       <ChevronRight size={14} className="text-gray-400" />
                     </a>
                   ) : (
                     <button key={label} onClick={onClick} className={cls}>
                       <span className="text-forest-500">{icon}</span>
-                      <span className="flex-1">{label}</span>
+                      <span className="flex-1">{labelNode}</span>
                       <ChevronRight size={14} className="text-gray-400" />
                     </button>
                   );

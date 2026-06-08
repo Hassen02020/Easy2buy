@@ -41,11 +41,11 @@ export function ContactBlock({ items = [] }: Props) {
       <div className="grid grid-cols-2 gap-2">
         <a href={`tel:${CONTACT.whatsapp}`}
           className="flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold py-2.5 rounded-xl transition-colors text-xs">
-          <Phone size={15} /> {CONTACT.phone}
+          <Phone size={15} /> <span dir="ltr">{CONTACT.phone}</span>
         </a>
         <a href={`tel:${CONTACT.whatsapp2}`}
           className="flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold py-2.5 rounded-xl transition-colors text-xs">
-          <Phone size={15} /> {CONTACT.phone2}
+          <Phone size={15} /> <span dir="ltr">{CONTACT.phone2}</span>
         </a>
       </div>
 
@@ -54,12 +54,12 @@ export function ContactBlock({ items = [] }: Props) {
         <a href={waLink(waMsg)} target="_blank" rel="noopener noreferrer"
           className="flex flex-col items-center gap-1 bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 font-bold py-2.5 rounded-xl transition-colors text-center">
           {WA_SVG}
-          <span className="text-xs">{CONTACT.phone}</span>
+          <span className="text-xs" dir="ltr">{CONTACT.phone}</span>
         </a>
         <a href={`https://wa.me/${CONTACT.whatsapp2}?text=${encodeURIComponent(waMsg)}`} target="_blank" rel="noopener noreferrer"
           className="flex flex-col items-center gap-1 bg-green-50 hover:bg-green-100 border border-green-200 text-green-700 font-bold py-2.5 rounded-xl transition-colors text-center">
           {WA_SVG}
-          <span className="text-xs">{CONTACT.phone2}</span>
+          <span className="text-xs" dir="ltr">{CONTACT.phone2}</span>
         </a>
         <a href={CONTACT.messengerUrl} target="_blank" rel="noopener noreferrer"
           className="flex flex-col items-center gap-1 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 font-bold py-2.5 rounded-xl transition-colors text-center">

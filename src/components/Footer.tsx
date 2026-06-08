@@ -166,13 +166,13 @@ export function Footer({ lang, onScrollCatalogue, onScrollOrder }: FooterProps) 
               href={`tel:${CONTACT.phone}`}
               className="flex items-center gap-2 text-white/60 hover:text-white transition-colors py-1 min-h-[36px]"
             >
-              <Phone size={13} className="text-forest-400" /> {CONTACT.phone}
+              <Phone size={13} className="text-forest-400" /> <span dir="ltr">{CONTACT.phone}</span>
             </a>
             <a
               href={`tel:${CONTACT.phone2}`}
               className="flex items-center gap-2 text-white/60 hover:text-white transition-colors py-1 min-h-[36px]"
             >
-              <Phone size={13} className="text-forest-400" /> {CONTACT.phone2}
+              <Phone size={13} className="text-forest-400" /> <span dir="ltr">{CONTACT.phone2}</span>
             </a>
 
             <p className="text-xs font-bold text-white uppercase tracking-wide mt-4 mb-2">
