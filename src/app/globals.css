@@ -20,6 +20,35 @@
   }
 }
 
+/* ── Print : Bon de Livraison ── */
+@media print {
+  body > *:not(#__next),
+  #__next > *:not(:has(#delivery-slip-root)),
+  .no-print {
+    display: none !important;
+  }
+
+  #delivery-slip-root {
+    display: block !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 148mm;
+    margin: 0;
+    padding: 8mm;
+    background: white;
+    color: black;
+    font-family: monospace;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  @page {
+    size: A5 portrait;
+    margin: 0;
+  }
+}
+
 @layer utilities {
   .line-clamp-2 {
     overflow: hidden;

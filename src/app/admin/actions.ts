@@ -288,3 +288,37 @@ export async function confirmDeliveryPayment(formData: FormData): Promise<{ erro
     return { error: "Erreur lors de la confirmation du paiement" };
   }
 }
+
+// ---------------------------------------------------------------------------
+// Bon de Livraison — Notes logistiques (Admin / Agent)
+// ---------------------------------------------------------------------------
+
+export async function updateDeliveryNotes(formData: FormData): Promise<void> {
+  const orderId = Number(formData.get("orderId"));
+  const deliveryNotes = String(formData.get("deliveryNotes") ?? "").trim();
+  if (!orderId) return;
+
+  await db
+    .update(orders)
+    .set({ deliveryNotes: deliveryNotes || null, updatedAt: new Date() })
+    .where(eq(orders.id, orderId));
+
+  revalidatePath(`/admin/orders/${orderId}`);
+}
+
+// ---------------------------------------------------------------------------
+// Bon de Livraison — Remarques livreur
+// ---------------------------------------------------------------------------
+
+export async function updateCourierRemarks(formData: FormData): Promise<void> {
+  const orderId = Number(formData.get("orderId"));
+  const courierRemarks = String(formData.get("courierRemarks") ?? "").trim();
+  if (!orderId) return;
+
+  await db
+    .update(orders)
+    .set({ courierRemarks: courierRemarks || null, updatedAt: new Date() })
+    .where(eq(orders.id, orderId));
+
+  revalidatePath(`/admin/orders/${orderId}`);
+}

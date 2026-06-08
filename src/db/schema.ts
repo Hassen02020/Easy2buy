@@ -159,6 +159,10 @@ export const orders = pgTable(
     advanceAmount: numeric("advance_amount", { precision: 10, scale: 3 }).notNull().default("0"),
     /** Solde restant à encaisser à la livraison */
     remainingAmount: numeric("remaining_amount", { precision: 10, scale: 3 }).notNull().default("0"),
+    /** Notes logistiques internes (agent / admin) — repères de livraison */
+    deliveryNotes: text("delivery_notes"),
+    /** Remarques saisies par le livreur après livraison */
+    courierRemarks: text("courier_remarks"),
     /** Référence externe (ID transaction D17/Flouci/Virement) */
     paymentRef: text("payment_ref"),
     /** Date de solde complet */

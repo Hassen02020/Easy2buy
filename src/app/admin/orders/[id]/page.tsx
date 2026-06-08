@@ -14,7 +14,8 @@ import { db } from "@/db";
 import { orders, orderItems, staff, auditLog } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { setOrderPayment, confirmDeliveryPayment } from "@/app/admin/actions";
+import { setOrderPayment, confirmDeliveryPayment, updateDeliveryNotes, updateCourierRemarks } from "@/app/admin/actions";
+import { DeliverySlip } from "@/components/DeliverySlip";
 
 async function setPaymentAction(formData: FormData): Promise<void> {
   "use server";
@@ -24,6 +25,16 @@ async function setPaymentAction(formData: FormData): Promise<void> {
 async function confirmPaymentAction(formData: FormData): Promise<void> {
   "use server";
   await confirmDeliveryPayment(formData);
+}
+
+async function deliveryNotesAction(formData: FormData): Promise<void> {
+  "use server";
+  await updateDeliveryNotes(formData);
+}
+
+async function courierRemarksAction(formData: FormData): Promise<void> {
+  "use server";
+  await updateCourierRemarks(formData);
 }
 
 // ---------------------------------------------------------------------------
@@ -105,18 +116,39 @@ export default async function OrderDetailPage({ params }: PageProps) {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <a href="/admin/orders" className="text-sm text-gray-400 hover:text-gray-600">← Commandes</a>
             <h1 className="text-2xl font-extrabold text-gray-900 mt-1">Commande #{order.id}</h1>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <span className="text-xs px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold">
               {ORDER_STATUS_LABELS[order.status] ?? order.status}
             </span>
             <span className={`text-xs px-3 py-1 rounded-full font-semibold ${payMeta.bg} ${payMeta.color}`}>
               {payMeta.label}
             </span>
+            {/* Bouton Imprimer Bon — client component */}
+            <DeliverySlip
+              orderId={order.id}
+              createdAt={order.createdAt}
+              customerName={order.customerName}
+              customerPhone={order.customerPhone}
+              customerCity={order.customerCity}
+              customerAddress={order.customerAddress}
+              items={items.map(i => ({
+                productName: i.productName,
+                quantity: i.quantity,
+                unitPrice: i.unitPrice,
+                lineTotal: i.lineTotal,
+              }))}
+              total={order.total}
+              advanceAmount={order.advanceAmount}
+              remainingAmount={order.remainingAmount}
+              paymentMethod={order.paymentMethod}
+              deliveryNotes={order.deliveryNotes}
+              courierRemarks={order.courierRemarks}
+            />
           </div>
         </div>
 
@@ -187,6 +219,49 @@ export default async function OrderDetailPage({ params }: PageProps) {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Notes logistiques (delivery_notes) */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
+              <h2 className="font-bold text-gray-800 text-sm uppercase tracking-wide mb-3">Remarques Livraison</h2>
+              <form action={deliveryNotesAction} className="space-y-3">
+                <input type="hidden" name="orderId" value={order.id} />
+                <textarea
+                  name="deliveryNotes"
+                  rows={3}
+                  defaultValue={order.deliveryNotes ?? ""}
+                  placeholder="Repères logistiques, code d’accès, contact gardien…"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-forest-400 resize-none"
+                />
+                <button
+                  type="submit"
+                  className="text-xs bg-forest-600 hover:bg-forest-700 text-white font-bold px-4 py-2 rounded-lg transition-colors"
+                >
+                  Enregistrer remarques
+                </button>
+              </form>
+            </div>
+
+            {/* Saisie livreur (courier_remarks) */}
+            <div className="bg-white rounded-2xl border border-amber-200 p-5 shadow-sm">
+              <h2 className="font-bold text-amber-800 text-sm uppercase tracking-wide mb-1">Saisie Livreur</h2>
+              <p className="text-xs text-amber-600 mb-3">Rempli après la tentative de livraison.</p>
+              <form action={courierRemarksAction} className="space-y-3">
+                <input type="hidden" name="orderId" value={order.id} />
+                <textarea
+                  name="courierRemarks"
+                  rows={3}
+                  defaultValue={order.courierRemarks ?? ""}
+                  placeholder="Client absent, refus, report, commentaire libre…"
+                  className="w-full border border-amber-100 bg-amber-50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+                />
+                <button
+                  type="submit"
+                  className="text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-lg transition-colors"
+                >
+                  Enregistrer saisie livreur
+                </button>
+              </form>
             </div>
 
             {/* Audit log */}
