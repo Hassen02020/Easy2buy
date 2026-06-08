@@ -71,15 +71,23 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "jardin-cart",
-      version: 2,
+      version: 3,
       migrate(persistedState: unknown, version: number) {
         const state = persistedState as CartState;
         if (version < 2) {
-          // Migration v1→v2 : purger les IDs legacy type "p1", "p2"...
           return {
             ...state,
             items: (state.items ?? []).filter(
               (i) => !isNaN(parseInt(i.id, 10)) && parseInt(i.id, 10) > 0
+            ),
+          };
+        }
+        if (version < 3) {
+          // Migration v2→v3 : purger les images Unsplash obsolètes
+          return {
+            ...state,
+            items: (state.items ?? []).filter(
+              (i) => !i.image?.includes("unsplash.com")
             ),
           };
         }
