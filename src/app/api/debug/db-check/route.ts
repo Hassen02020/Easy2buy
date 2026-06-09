@@ -4,7 +4,14 @@ import { sql } from "drizzle-orm";
 import { products } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
+if (process.env.NODE_ENV === "production") {
+  // guard handled in handler
+}
+
 export async function GET() {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Disabled in production" }, { status: 403 });
+  }
   try {
     const [time] = await db.execute<{ now: string }>(sql`SELECT NOW()::text AS now`);
 

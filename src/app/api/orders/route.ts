@@ -213,7 +213,7 @@ export async function POST(req: NextRequest) {
     const causeMsg = cause instanceof Error ? cause.message : cause ? String(cause) : undefined;
     console.error("[POST /api/orders]", msg, causeMsg);
     return NextResponse.json(
-      { error: "Erreur serveur. Veuillez réessayer.", _debug: msg, _cause: causeMsg },
+      { error: "Erreur serveur. Veuillez réessayer." },
       { status: 500 }
     );
   }
