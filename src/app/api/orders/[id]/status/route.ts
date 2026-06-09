@@ -10,6 +10,7 @@ import { updateOrderStatus, InvalidTransitionError, OrderNotFoundError } from "@
 
 const patchSchema = z.object({
   status: z.enum(["PENDING", "CONFIRMED", "PREPARING", "SHIPPED", "DELIVERED", "CANCELLED", "RETURNED"]),
+  courierRemarks: z.string().max(500).optional(),
 });
 
 export async function PATCH(
@@ -39,7 +40,17 @@ export async function PATCH(
   }
 
   try {
-    const updated = await updateOrderStatus(orderId, parsed.data.status);
+    const { status, courierRemarks } = parsed.data;
+
+    // Persister les remarques livreur si fournies
+    if (courierRemarks) {
+      const { db } = await import("@/db");
+      const { orders } = await import("@/db/schema");
+      const { eq } = await import("drizzle-orm");
+      await db.update(orders).set({ courierRemarks }).where(eq(orders.id, orderId));
+    }
+
+    const updated = await updateOrderStatus(orderId, status, { note: courierRemarks });
     return NextResponse.json({ success: true, order: updated });
   } catch (err) {
     if (err instanceof OrderNotFoundError) {
