@@ -14,6 +14,9 @@ import type { CustomerTier } from "@/db/schema";
 import { LOYALTY_CONFIG } from "@/lib/loyalty";
 import { REFERRAL_CONFIG } from "@/lib/referral";
 import { AdminNav } from "@/components/AdminNav";
+import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
+import type { StaffRole } from "@/db/schema";
 
 // ---------------------------------------------------------------------------
 // Server Actions
@@ -129,6 +132,8 @@ function ScoreBar({ score }: { score: number }) {
 // ---------------------------------------------------------------------------
 
 export default async function AdminCustomersPage() {
+  const session = await getSession();
+  if (!session) redirect("/admin/login");
   const customers = await db
     .select()
     .from(customerProfiles)
@@ -163,7 +168,7 @@ export default async function AdminCustomersPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminNav active="/admin/customers" />
+      <AdminNav active="/admin/customers" role={session!.role as StaffRole} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-8 space-y-6">
 
         {/* Header */}

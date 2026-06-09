@@ -14,6 +14,9 @@ import { db } from "@/db";
 import { orders, orderItems, products, customerProfiles } from "@/db/schema";
 import { desc, sql, eq, and, gte, lte } from "drizzle-orm";
 import { AdminNav } from "@/components/AdminNav";
+import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
+import type { StaffRole } from "@/db/schema";
 
 // ---------------------------------------------------------------------------
 // Data fetching
@@ -187,6 +190,8 @@ interface PageProps {
 }
 
 export default async function AnalyticsPage({ searchParams }: PageProps) {
+  const session = await getSession();
+  if (!session) redirect("/admin/login");
   const { from, to } = await searchParams;
 
   let data: Awaited<ReturnType<typeof getAnalyticsData>> | null = null;
@@ -203,7 +208,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminNav active="/admin/analytics" />
+      <AdminNav active="/admin/analytics" role={session!.role as StaffRole} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-12 space-y-8">
 
         {/* Header + filtre */}

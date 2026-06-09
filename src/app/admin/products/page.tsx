@@ -10,6 +10,10 @@ import { desc } from "drizzle-orm";
 import AdminProductForm from "@/components/admin/AdminProductForm";
 import { deleteProduct } from "@/app/admin/actions";
 import Image from "next/image";
+import { AdminNav } from "@/components/AdminNav";
+import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
+import type { StaffRole } from "@/db/schema";
 
 const CAT_LABELS: Record<string, string> = {
   interieur: "Intérieur",
@@ -19,6 +23,8 @@ const CAT_LABELS: Record<string, string> = {
 };
 
 export default async function AdminProductsPage() {
+  const session = await getSession();
+  if (!session) redirect("/admin/login");
   let rows: (typeof products.$inferSelect)[] = [];
   let dbError: string | null = null;
 
@@ -32,6 +38,7 @@ export default async function AdminProductsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <AdminNav active="/admin/products" role={session!.role as StaffRole} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
         {/* Header */}
@@ -39,11 +46,6 @@ export default async function AdminProductsPage() {
           <div>
             <h1 className="text-2xl font-extrabold text-gray-900">Catalogue Produits</h1>
             <p className="text-sm text-gray-500">{typedRows.length} produit(s) au total</p>
-          </div>
-          <div className="flex gap-3">
-            <a href="/admin/dashboard" className="text-sm border border-gray-200 bg-white hover:bg-gray-50 px-4 py-2 rounded-xl font-medium transition-colors">
-              ← Dashboard
-            </a>
           </div>
         </div>
 

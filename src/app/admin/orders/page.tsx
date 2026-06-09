@@ -12,7 +12,9 @@ import { db } from "@/db";
 import { AdminNav } from "@/components/AdminNav";
 import { orders } from "@/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
-import type { OrderStatus } from "@/db/schema";
+import type { OrderStatus, StaffRole } from "@/db/schema";
+import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
 import { OrderStatusForm } from "@/components/OrderStatusForm";
 
 // ---------------------------------------------------------------------------
@@ -73,6 +75,8 @@ interface PageProps {
 }
 
 export default async function AdminOrdersPage({ searchParams }: PageProps) {
+  const session = await getSession();
+  if (!session) redirect("/admin/login");
   const { status } = await searchParams;
   const activeStatus = ALL_STATUSES.includes(status as OrderStatus)
     ? (status as OrderStatus)
@@ -93,7 +97,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminNav active="/admin/orders" />
+      <AdminNav active="/admin/orders" role={session!.role as StaffRole} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

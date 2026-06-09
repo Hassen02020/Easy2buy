@@ -17,9 +17,11 @@ export const dynamic = "force-dynamic";
 import { db } from "@/db";
 import { orders, orderItems, staff } from "@/db/schema";
 import { eq, gte, lte, and, count, desc, sql, inArray } from "drizzle-orm";
-import type { OrderStatus } from "@/db/schema";
+import type { OrderStatus, StaffRole } from "@/db/schema";
 import { calcOrderProfit, aggregateProfits } from "@/lib/profitability";
 import { AdminNav } from "@/components/AdminNav";
+import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -170,6 +172,8 @@ interface PageProps {
 }
 
 export default async function DashboardPage({ searchParams }: PageProps) {
+  const session = await getSession();
+  if (!session) redirect("/admin/login");
   const { from, to, agent, deliverer, customer } = await searchParams;
 
   let data: Awaited<ReturnType<typeof getDashboardData>> | null = null;
@@ -185,7 +189,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminNav active="/admin/dashboard" />
+      <AdminNav active="/admin/dashboard" role={session!.role as StaffRole} />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-8 space-y-8">
 
         {/* Header */}

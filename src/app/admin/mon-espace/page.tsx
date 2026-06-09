@@ -11,9 +11,10 @@ export const dynamic = "force-dynamic";
 import { db } from "@/db";
 import { orders, staff, workflowEvents } from "@/db/schema";
 import { eq, or, count, desc } from "drizzle-orm";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { AdminNav } from "@/components/AdminNav";
 import { ROLE_LABELS, ROLE_COLORS, checkAccess } from "@/lib/rbac";
+import { getSession } from "@/lib/session";
 import type { StaffRole, OrderStatus } from "@/db/schema";
 
 // ---------------------------------------------------------------------------
@@ -111,35 +112,29 @@ interface PageProps {
 }
 
 export default async function MonEspacePage({ searchParams }: PageProps) {
+  // Session cookie en priorité
+  const session = await getSession();
   const { staffId: staffIdStr } = await searchParams;
 
-  // Sélecteur de staff (si pas de session auth)
-  const allStaff = await db.select({ id: staff.id, name: staff.name, role: staff.role })
-    .from(staff).where(eq(staff.active, true));
-
-  const staffId = Number(staffIdStr);
+  // Résoudre l'ID : session > query param (admin peut consulter un autre profil)
+  let staffId: number;
+  if (session) {
+    // ADMIN peut voir un autre profil via ?staffId=X
+    if (session.role === "ADMIN" && staffIdStr) {
+      staffId = Number(staffIdStr);
+    } else {
+      staffId = session.id;
+    }
+  } else if (staffIdStr) {
+    staffId = Number(staffIdStr);
+  } else {
+    redirect("/admin/login");
+    return;
+  }
 
   if (!staffId || isNaN(staffId)) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <AdminNav active="/admin/mon-espace" />
-        <div className="max-w-2xl mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-extrabold text-gray-900 mb-4">Mon Espace</h1>
-          <p className="text-gray-500 text-sm mb-6">Sélectionnez votre profil pour voir vos commandes assignées.</p>
-          <form method="GET" className="flex flex-col items-center gap-3">
-            <select name="staffId" className="w-64 border border-gray-200 rounded-xl px-4 py-3 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-forest-400">
-              <option value="">— Choisir un profil —</option>
-              {allStaff.map((s) => (
-                <option key={s.id} value={s.id}>{s.name} ({s.role})</option>
-              ))}
-            </select>
-            <button type="submit" className="bg-forest-600 hover:bg-forest-700 text-white font-bold px-6 py-2.5 rounded-xl transition-colors text-sm">
-              Accéder
-            </button>
-          </form>
-        </div>
-      </div>
-    );
+    redirect("/admin/login");
+    return;
   }
 
   const data = await getMySpace(staffId);
@@ -155,7 +150,7 @@ export default async function MonEspacePage({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <AdminNav active="/admin/mon-espace" />
+      <AdminNav active="/admin/mon-espace" role={session?.role as StaffRole} />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
         {/* Header profil */}
@@ -172,9 +167,9 @@ export default async function MonEspacePage({ searchParams }: PageProps) {
             </div>
             <p className="text-xs text-gray-400 mt-1">{member.email}</p>
           </div>
-          <a href={`/admin/mon-espace`} className="text-xs text-gray-400 hover:text-gray-600 underline">
-            Changer de profil
-          </a>
+          {session?.role === "ADMIN" && (
+            <a href="/admin/staff" className="text-xs text-gray-400 hover:text-gray-600 underline">← Gérer le personnel</a>
+          )}
         </div>
 
         {/* KPIs personnels */}
