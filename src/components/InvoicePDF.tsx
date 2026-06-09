@@ -73,8 +73,7 @@ export function InvoicePDF(props: InvoicePDFProps) {
 
       <div
         id="invoice-root"
-        className="hidden print:block bg-white text-black"
-        style={{ width: "210mm", minHeight: "297mm", padding: "15mm", boxSizing: "border-box", fontFamily: "Arial, sans-serif", fontSize: "10pt" }}
+        style={{ display: "none", width: "210mm", minHeight: "297mm", padding: "15mm", boxSizing: "border-box", fontFamily: "Arial, sans-serif", fontSize: "10pt", background: "white", color: "black" }}
       >
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10mm", borderBottom: "3px solid #1a472a", paddingBottom: "6mm" }}>

@@ -22,19 +22,23 @@
   }
 }
 
-/* ── Print : Bon de Livraison ── */
+/* ── Print : Bon de Livraison + Facture ── */
 @media print {
-  body > *:not(#__next),
-  #__next > *:not(:has(#delivery-slip-root)),
-  .no-print {
-    display: none !important;
+  /* Masquer tout sauf le document à imprimer */
+  body * {
+    visibility: hidden;
   }
 
+  /* Bon de livraison A5 */
+  #delivery-slip-root,
+  #delivery-slip-root * {
+    visibility: visible;
+  }
   #delivery-slip-root {
     display: block !important;
-    position: fixed;
-    top: 0;
-    left: 0;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
     width: 148mm;
     margin: 0;
     padding: 8mm;
@@ -45,8 +49,33 @@
     print-color-adjust: exact;
   }
 
+  /* Facture A4 */
+  #invoice-root,
+  #invoice-root * {
+    visibility: visible;
+  }
+  #invoice-root {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 210mm;
+    margin: 0;
+    padding: 15mm;
+    background: white;
+    color: black;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Masquer boutons impression */
+  .no-print {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Page size selon le document actif */
   @page {
-    size: A5 portrait;
     margin: 0;
   }
 }

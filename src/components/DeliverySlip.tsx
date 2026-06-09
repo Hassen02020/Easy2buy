@@ -75,8 +75,7 @@ export function DeliverySlip(props: DeliverySlipProps) {
       {/* ── Bon de livraison ── */}
       <div
         id="delivery-slip-root"
-        className="hidden print:block font-mono text-black bg-white"
-        style={{ width: "148mm", minHeight: "210mm", padding: "8mm", boxSizing: "border-box" }}
+        style={{ display: "none", width: "148mm", minHeight: "210mm", padding: "8mm", boxSizing: "border-box", fontFamily: "monospace", color: "black", background: "white" }}
       >
         {/* ── HEADER ── */}
         <div style={{ borderBottom: "2px solid black", paddingBottom: "4mm", marginBottom: "4mm" }}>
