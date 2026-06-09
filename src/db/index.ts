@@ -2,7 +2,8 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "./schema";
 
-const connectionString = process.env.DATABASE_URL!;
+// postgres.js ne supporte pas channel_binding — on le retire de l'URL
+const connectionString = (process.env.DATABASE_URL ?? "").replace(/[&?]channel_binding=[^&]*/g, "");
 
 /**
  * Pool de connexions PostgreSQL.
