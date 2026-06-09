@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { upsertProduct } from "@/app/admin/actions";
 import type { Product } from "@/db/schema";
-import { Loader2, Save, X, Trash2, ImagePlus } from "lucide-react";
+import { Loader2, Save, X, Trash2, ImagePlus, PlayCircle } from "lucide-react";
 
 interface Props {
   product?: Product;
