@@ -18,6 +18,7 @@ const LINKS: NavLink[] = [
   { href: "/admin/customers",   label: "Clients",     icon: "👥", roles: ["ADMIN", "AGENT"] },
   { href: "/admin/analytics",   label: "Analytique",  icon: "📈", roles: ["ADMIN"] },
   { href: "/admin/tournee",     label: "Ma Tournée",  icon: "🚚", roles: ["ADMIN", "LIVREUR"] },
+  { href: "/admin/tournees",    label: "Tournées",     icon: "🗓️", roles: ["ADMIN", "AGENT"] },
   { href: "/admin/staff",       label: "Personnel",   icon: "👥", roles: ["ADMIN"] },
   { href: "/admin/mon-espace",  label: "Mon Espace",  icon: "👤", roles: ["ADMIN", "AGENT", "LIVREUR"] },
 ];

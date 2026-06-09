@@ -20,6 +20,7 @@ const PAGE_PERMISSIONS: Record<string, StaffRole[]> = {
   "/admin/analytics":  ["ADMIN"],
   "/admin/mon-espace": ["ADMIN", "AGENT", "LIVREUR"],
   "/admin/tournee":    ["ADMIN", "LIVREUR"],
+  "/admin/tournees":   ["ADMIN", "AGENT"],
   "/admin/staff":      ["ADMIN"],
 };
 

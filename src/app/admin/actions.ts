@@ -408,6 +408,62 @@ export async function markPrepared(formData: FormData): Promise<{ error?: string
 }
 
 // ---------------------------------------------------------------------------
+// Modifier infos client sur commande (AGENT/ADMIN) + historique workflow
+// ---------------------------------------------------------------------------
+
+export async function updateCustomerInfo(formData: FormData): Promise<{ error?: string }> {
+  const orderId     = Number(formData.get("orderId"));
+  const staffId     = Number(formData.get("staffId")) || null;
+  const actorRole   = String(formData.get("actorRole") ?? "") as StaffRole;
+  const phone       = String(formData.get("customerPhone") ?? "").trim();
+  const address     = String(formData.get("customerAddress") ?? "").trim();
+  const city        = String(formData.get("customerCity") ?? "").trim();
+  const notes       = String(formData.get("notes") ?? "").trim();
+
+  if (!orderId) return { error: "orderId manquant." };
+
+  try { requireAccess(actorRole, "CHANGE_STATUS"); }
+  catch (e) { if (e instanceof RBACError) return { error: e.message }; throw e; }
+
+  const [order] = await db.select({ customerPhone: orders.customerPhone, customerAddress: orders.customerAddress }).from(orders).where(eq(orders.id, orderId));
+  if (!order) return { error: "Commande introuvable." };
+
+  let staffName: string | null = null;
+  if (staffId) {
+    const [m] = await db.select({ name: staff.name }).from(staff).where(eq(staff.id, staffId));
+    staffName = m?.name ?? null;
+  }
+
+  const changes: string[] = [];
+  if (phone && phone !== order.customerPhone) changes.push(`Tél: ${order.customerPhone} → ${phone}`);
+  if (address && address !== order.customerAddress) changes.push(`Adresse modifiée`);
+  if (city) changes.push(`Ville: ${city}`);
+
+  await db.transaction(async (tx) => {
+    await tx.update(orders).set({
+      ...(phone   && { customerPhone: phone }),
+      ...(address && { customerAddress: address }),
+      ...(city    && { customerCity: city }),
+      ...(notes   !== undefined && { notes: notes || null }),
+      updatedAt: new Date(),
+    }).where(eq(orders.id, orderId));
+
+    if (changes.length > 0) {
+      await tx.insert(workflowEvents).values({
+        orderId,
+        staffId,
+        staffName,
+        action: "ASSIGNED",
+        note: `Infos client modifiées par ${staffName ?? "staff"}: ${changes.join("; ")}`,
+      });
+    }
+  });
+
+  revalidatePath(`/admin/orders/${orderId}`);
+  return {};
+}
+
+// ---------------------------------------------------------------------------
 // Bon de Livraison — Notes logistiques (Admin / Agent)
 // ---------------------------------------------------------------------------
 

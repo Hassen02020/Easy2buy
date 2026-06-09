@@ -1,21 +1,18 @@
 export const dynamic = "force-dynamic";
-/**
- * app/admin/orders/[id]/page.tsx
- * --------------------------------
- * Page détail d'une commande — panneau de gestion du paiement.
- *
- * Sections :
- *   - Résumé commande (client, items, totaux)
- *   - Panneau paiement : statut actuel + formulaires HYBRID / COD / Confirmer livraison
- *   - Historique audit
- */
 
 import { db } from "@/db";
-import { orders, orderItems, staff, auditLog } from "@/db/schema";
+import { orders, orderItems, staff, auditLog, workflowEvents } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { setOrderPayment, confirmDeliveryPayment, updateDeliveryNotes, updateCourierRemarks, assignTask } from "@/app/admin/actions";
+import { getSession } from "@/lib/session";
+import { redirect } from "next/navigation";
+import {
+  setOrderPayment, confirmDeliveryPayment, updateDeliveryNotes,
+  updateCourierRemarks, assignTask, changeOrderStatus, updateCustomerInfo,
+} from "@/app/admin/actions";
 import { DeliverySlip } from "@/components/DeliverySlip";
+import { InvoicePDF } from "@/components/InvoicePDF";
+import { OrderDetailClient } from "./OrderDetailClient";
 
 async function setPaymentAction(formData: FormData): Promise<void> {
   "use server";
@@ -37,9 +34,19 @@ async function courierRemarksAction(formData: FormData): Promise<void> {
   await updateCourierRemarks(formData);
 }
 
-async function assignTaskAction(formData: FormData): Promise<void> {
+async function assignTaskAction(formData: FormData): Promise<{ error?: string }> {
   "use server";
-  await assignTask(formData);
+  return (await assignTask(formData)) ?? {};
+}
+
+async function updateCustomerInfoAction(formData: FormData): Promise<{ error?: string }> {
+  "use server";
+  return (await updateCustomerInfo(formData)) ?? {};
+}
+
+async function changeStatusAction(formData: FormData): Promise<{ error?: string }> {
+  "use server";
+  return (await changeOrderStatus(formData)) ?? {};
 }
 
 // ---------------------------------------------------------------------------
@@ -89,9 +96,17 @@ async function getOrderDetail(id: number) {
     .from(auditLog)
     .where(eq(auditLog.orderId, id))
     .orderBy(desc(auditLog.createdAt));
-  const allStaff = await db.select({ id: staff.id, name: staff.name, role: staff.role }).from(staff).where(eq(staff.active, true));
+  const wfEvents = await db
+    .select()
+    .from(workflowEvents)
+    .where(eq(workflowEvents.orderId, id))
+    .orderBy(desc(workflowEvents.createdAt));
+  const allStaff = await db
+    .select({ id: staff.id, name: staff.name, role: staff.role })
+    .from(staff)
+    .where(eq(staff.active, true));
 
-  return { order, items, logs, allStaff };
+  return { order, items, logs, wfEvents, allStaff };
 }
 
 // ---------------------------------------------------------------------------
@@ -107,10 +122,13 @@ export default async function OrderDetailPage({ params }: PageProps) {
   const orderId = parseInt(id, 10);
   if (isNaN(orderId)) notFound();
 
+  const session = await getSession();
+  if (!session) redirect("/admin/login");
+
   const data = await getOrderDetail(orderId).catch(() => null);
   if (!data) notFound();
 
-  const { order, items, logs, allStaff } = data;
+  const { order, items, logs, wfEvents, allStaff } = data;
   const payMeta = PAYMENT_STATUS_META[order.paymentStatus] ?? PAYMENT_STATUS_META.UNPAID;
   const canSetPayment  = order.paymentStatus === "UNPAID";
   const canConfirmPayment = order.paymentStatus === "UNPAID" || order.paymentStatus === "PARTIAL_PAID";
@@ -125,6 +143,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
           <div>
             <a href="/admin/orders" className="text-sm text-gray-400 hover:text-gray-600">← Commandes</a>
             <h1 className="text-2xl font-extrabold text-gray-900 mt-1">Commande #{order.id}</h1>
+            <p className="text-xs text-gray-400 mt-0.5">Connecté : <strong>{session.name}</strong> ({session.role})</p>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <span className="text-xs px-3 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold">
@@ -133,6 +152,34 @@ export default async function OrderDetailPage({ params }: PageProps) {
             <span className={`text-xs px-3 py-1 rounded-full font-semibold ${payMeta.bg} ${payMeta.color}`}>
               {payMeta.label}
             </span>
+            {/* Bouton Voir Fiche Client */}
+            <a href={`/admin/customers?phone=${encodeURIComponent(order.customerPhone)}`}
+              className="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-3 py-1.5 rounded-lg border border-indigo-200 transition-colors">
+              👤 Fiche client
+            </a>
+            {/* Facture PDF */}
+            <InvoicePDF
+              orderId={order.id}
+              createdAt={order.createdAt}
+              customerName={order.customerName}
+              customerPhone={order.customerPhone}
+              customerCity={order.customerCity}
+              customerAddress={order.customerAddress ?? ""}
+              items={items.map(i => ({
+                productName: i.productName,
+                quantity: i.quantity,
+                unitPrice: i.unitPrice,
+                lineTotal: i.lineTotal,
+              }))}
+              subtotal={order.subtotal}
+              deliveryFee={order.deliveryFee}
+              total={order.total}
+              advanceAmount={order.advanceAmount}
+              remainingAmount={order.remainingAmount}
+              paymentMethod={order.paymentMethod}
+              paymentStatus={order.paymentStatus}
+              deliveredByName={allStaff.find(s => s.id === order.deliveredBy)?.name}
+            />
             {/* Bouton Imprimer Bon — client component */}
             <DeliverySlip
               orderId={order.id}
@@ -162,25 +209,29 @@ export default async function OrderDetailPage({ params }: PageProps) {
           {/* ── Colonne gauche : résumé + items ── */}
           <div className="lg:col-span-2 space-y-4">
 
-            {/* Info client */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-              <h2 className="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wide">Client</h2>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                {[
-                  ["Nom",      order.customerName],
-                  ["Téléphone", order.customerPhone],
-                  ["Ville",    order.customerCity],
-                  ["Adresse",  order.customerAddress],
-                  ["Notes",    order.notes ?? "—"],
-                  ["Date",     new Date(order.createdAt).toLocaleString("fr-FR")],
-                ].map(([label, value]) => (
-                  <div key={label}>
-                    <p className="text-gray-400 text-xs">{label}</p>
-                    <p className="font-medium text-gray-800">{value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {/* Acteurs + statut + modifier client — composant interactif */}
+            <OrderDetailClient
+              orderId={order.id}
+              order={{
+                status: order.status,
+                customerName: order.customerName,
+                customerPhone: order.customerPhone,
+                customerCity: order.customerCity,
+                customerAddress: order.customerAddress,
+                notes: order.notes,
+                assignedTo: order.assignedTo,
+                preparedBy: order.preparedBy,
+                packedBy: order.packedBy,
+                deliveredBy: order.deliveredBy,
+                confirmedBy: order.confirmedBy,
+              }}
+              allStaff={allStaff}
+              sessionRole={session.role as string}
+              sessionId={session.id}
+              assignTaskAction={assignTaskAction}
+              updateCustomerInfoAction={updateCustomerInfoAction}
+              changeStatusAction={changeStatusAction}
+            />
 
             {/* Articles */}
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
@@ -269,25 +320,34 @@ export default async function OrderDetailPage({ params }: PageProps) {
               </form>
             </div>
 
-            {/* Audit log */}
-            {logs.length > 0 && (
+            {/* Historique (audit + workflow) */}
+            {(logs.length > 0 || wfEvents.length > 0) && (
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-gray-100">
-                  <h2 className="font-bold text-gray-800 text-sm uppercase tracking-wide">Historique</h2>
+                  <h2 className="font-bold text-gray-800 text-sm uppercase tracking-wide">Historique complet</h2>
                 </div>
                 <ul className="divide-y divide-gray-100 text-sm">
                   {logs.map(log => (
-                    <li key={log.id} className="px-5 py-3 flex items-start gap-3">
-                      <span className="mt-0.5 w-2 h-2 rounded-full bg-blue-400 shrink-0" />
+                    <li key={`audit-${log.id}`} className="px-5 py-3 flex items-start gap-3">
+                      <span className="mt-1 w-2 h-2 rounded-full bg-blue-400 shrink-0" />
                       <div>
                         <p className="text-gray-800 font-medium">
-                          {log.fromStatus} → {log.toStatus}
+                          {ORDER_STATUS_LABELS[log.fromStatus ?? ""] ?? log.fromStatus ?? "—"} → {ORDER_STATUS_LABELS[log.toStatus] ?? log.toStatus}
                         </p>
-                        {log.staffName && <p className="text-gray-400 text-xs">Par : {log.staffName}</p>}
-                        {log.note && <p className="text-gray-500 text-xs italic">{log.note}</p>}
-                        <p className="text-gray-400 text-xs">
-                          {new Date(log.createdAt).toLocaleString("fr-FR")}
-                        </p>
+                        {log.staffName && <p className="text-gray-500 text-xs">Par : {log.staffName}</p>}
+                        {log.note && <p className="text-gray-400 text-xs italic">{log.note}</p>}
+                        <p className="text-gray-400 text-xs">{new Date(log.createdAt).toLocaleString("fr-FR")}</p>
+                      </div>
+                    </li>
+                  ))}
+                  {wfEvents.map(ev => (
+                    <li key={`wf-${ev.id}`} className="px-5 py-3 flex items-start gap-3">
+                      <span className="mt-1 w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+                      <div>
+                        <p className="text-gray-700 font-medium text-xs uppercase tracking-wide">{ev.action}</p>
+                        {ev.staffName && <p className="text-gray-500 text-xs">Par : {ev.staffName}</p>}
+                        {ev.note && <p className="text-gray-400 text-xs italic">{ev.note}</p>}
+                        <p className="text-gray-400 text-xs">{new Date(ev.createdAt).toLocaleString("fr-FR")}</p>
                       </div>
                     </li>
                   ))}
@@ -299,41 +359,11 @@ export default async function OrderDetailPage({ params }: PageProps) {
           {/* ── Colonne droite : assignation + paiement ── */}
           <div className="space-y-4">
 
-            {/* ── Panneau Assignation Équipe ── */}
-            <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-              <h2 className="font-bold text-gray-800 text-sm uppercase tracking-wide mb-4">Assignation Équipe</h2>
-
-              {[
-                { label: "Agent responsable",  role: "assignedTo",  current: order.assignedTo,  filter: (s: typeof allStaff[number]) => s.role !== "LIVREUR" },
-                { label: "Préparateur",        role: "preparedBy",  current: order.preparedBy,  filter: (s: typeof allStaff[number]) => s.role !== "LIVREUR" },
-                { label: "Emballeur",          role: "packedBy",    current: order.packedBy,    filter: (_s: typeof allStaff[number]) => true },
-                { label: "Livreur",            role: "deliveredBy", current: order.deliveredBy, filter: (s: typeof allStaff[number]) => s.role !== "AGENT" },
-              ].map(({ label, role, current, filter }) => {
-                const options = allStaff.filter(filter);
-                return (
-                  <form key={role} action={assignTaskAction} className="flex items-center gap-2 mb-2">
-                    <input type="hidden" name="orderId"    value={order.id} />
-                    <input type="hidden" name="role"       value={role} />
-                    <input type="hidden" name="actorRole"  value="ADMIN" />
-                    <label htmlFor={`assign-${role}`} className="text-xs text-gray-500 w-28 shrink-0">{label}</label>
-                    <select
-                      id={`assign-${role}`}
-                      name="staffId"
-                      defaultValue={current ?? ""}
-                      className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-forest-400"
-                    >
-                      <option value="">— Non assigné —</option>
-                      {options.map((s) => (
-                        <option key={s.id} value={s.id}>{s.name} ({s.role})</option>
-                      ))}
-                    </select>
-                    <button type="submit" className="text-xs bg-forest-600 hover:bg-forest-700 text-white font-bold px-2.5 py-1.5 rounded-lg transition-colors shrink-0">
-                      ✓
-                    </button>
-                  </form>
-                );
-              })}
-            </div>
+            {/* Tournée — lien rapide */}
+            <a href="/admin/tournees"
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-colors shadow-sm">
+              🚚 Voir Gestion Tournées
+            </a>
 
             {/* Récapitulatif paiement */}
             <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm space-y-3">
