@@ -77,9 +77,12 @@ export function InvoicePDF(props: InvoicePDFProps) {
       >
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10mm", borderBottom: "3px solid #1a472a", paddingBottom: "6mm" }}>
-          <div>
-            <p style={{ fontSize: "18pt", fontWeight: "900", color: "#1a472a", margin: 0 }}>{CONTACT.businessName}</p>
-            <p style={{ margin: "2mm 0 0", fontSize: "9pt", color: "#555" }}>{CONTACT.phone} · {CONTACT.phone2}</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "5mm" }}>
+            <img src="/logoeasy2buy.png" alt="Logo" style={{ height: "18mm", width: "auto", objectFit: "contain" }} />
+            <div>
+              <p style={{ fontSize: "18pt", fontWeight: "900", color: "#1a472a", margin: 0 }}>{CONTACT.businessName}</p>
+              <p style={{ margin: "2mm 0 0", fontSize: "9pt", color: "#555" }}>{CONTACT.phone} · {CONTACT.phone2}</p>
+            </div>
           </div>
           <div style={{ textAlign: "right" }}>
             <p style={{ fontSize: "16pt", fontWeight: "bold", margin: 0 }}>FACTURE</p>

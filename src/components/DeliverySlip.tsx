@@ -80,11 +80,14 @@ export function DeliverySlip(props: DeliverySlipProps) {
         {/* ── HEADER ── */}
         <div style={{ borderBottom: "2px solid black", paddingBottom: "4mm", marginBottom: "4mm" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div>
-              <p style={{ fontSize: "14pt", fontWeight: "900", letterSpacing: "0.05em" }}>
-                {CONTACT.businessName}
-              </p>
-              <p style={{ fontSize: "7pt", color: "#555" }}>{CONTACT.phone} · {CONTACT.phone2}</p>
+            <div style={{ display: "flex", alignItems: "center", gap: "3mm" }}>
+              <img src="/logoeasy2buy.png" alt="Logo" style={{ height: "12mm", width: "auto", objectFit: "contain" }} />
+              <div>
+                <p style={{ fontSize: "14pt", fontWeight: "900", letterSpacing: "0.05em", margin: 0 }}>
+                  {CONTACT.businessName}
+                </p>
+                <p style={{ fontSize: "7pt", color: "#555", margin: 0 }}>{CONTACT.phone} · {CONTACT.phone2}</p>
+              </div>
             </div>
             <div style={{ textAlign: "right" }}>
               <p style={{ fontSize: "11pt", fontWeight: "bold" }}>BON DE LIVRAISON</p>

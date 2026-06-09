@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { ListeLivreur } from "@/components/ListeLivreur";
 
 interface Order {
   id: number; customerName: string; customerPhone: string;
@@ -83,10 +84,28 @@ export function TourneesClient({ orders, allStaff, sessionRole, sessionId }:
           ))}
         </select>
         <span className="text-xs text-gray-400">{filtered.length} affiché(s)</span>
-        <a href="?print=1" target="_blank"
-          className="ml-auto text-xs bg-gray-800 hover:bg-gray-900 text-white font-bold px-3 py-1.5 rounded-lg">
-          🖨️ Imprimer liste livreur
-        </a>
+        {filterLivreur !== "all" && filterLivreur !== "unassigned" && (() => {
+          const liv = allStaff.find(s => s.id === Number(filterLivreur));
+          return liv ? (
+            <div className="ml-auto no-print">
+              <ListeLivreur
+                livreurName={liv.name}
+                orders={filtered.map(o => ({
+                  id: o.id,
+                  customerName: o.customerName,
+                  customerPhone: o.customerPhone,
+                  customerCity: o.customerCity,
+                  customerAddress: o.customerAddress ?? "",
+                  total: o.total ?? 0,
+                  remainingAmount: o.remainingAmount ?? 0,
+                  paymentMethod: "CASH_ON_DELIVERY",
+                  deliveryNotes: o.deliveryNotes,
+                  status: o.status,
+                }))}
+              />
+            </div>
+          ) : null;
+        })()}
       </div>
 
       {/* Groupes par livreur */}

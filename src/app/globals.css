@@ -68,6 +68,25 @@
     print-color-adjust: exact;
   }
 
+  /* Liste Livreur A4 */
+  #liste-livreur-root,
+  #liste-livreur-root * {
+    visibility: visible;
+  }
+  #liste-livreur-root {
+    display: block !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 210mm;
+    margin: 0;
+    padding: 15mm;
+    background: white;
+    color: black;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
   /* Masquer boutons impression */
   .no-print {
     display: none !important;

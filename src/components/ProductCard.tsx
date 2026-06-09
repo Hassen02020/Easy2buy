@@ -54,7 +54,7 @@ export function ProductCard({ product, allProducts = [], index = 0, lang = "fr" 
           </span>
         )}
 
-        <div className="relative h-52 w-full overflow-hidden bg-forest-50">
+        <div className="relative h-60 w-full overflow-hidden bg-forest-50">
           {product.video && !product.videoUrl ? (
             <video
               src={product.video}
@@ -67,7 +67,7 @@ export function ProductCard({ product, allProducts = [], index = 0, lang = "fr" 
               alt={product.name}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
             />
           )}
           {/* Bouton détail */}
