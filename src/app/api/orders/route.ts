@@ -208,9 +208,11 @@ export async function POST(req: NextRequest) {
     if (err instanceof StockError) {
       return NextResponse.json({ error: err.message }, { status: 409 });
     }
-    console.error("[POST /api/orders]", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
+    console.error("[POST /api/orders]", msg, stack);
     return NextResponse.json(
-      { error: "Erreur serveur. Veuillez réessayer." },
+      { error: "Erreur serveur. Veuillez réessayer.", _debug: msg },
       { status: 500 }
     );
   }
