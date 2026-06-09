@@ -208,11 +208,12 @@ export async function POST(req: NextRequest) {
     if (err instanceof StockError) {
       return NextResponse.json({ error: err.message }, { status: 409 });
     }
-    const msg = err instanceof Error ? err.message : String(err);
-    const stack = err instanceof Error ? err.stack : undefined;
-    console.error("[POST /api/orders]", msg, stack);
+    const msg   = err instanceof Error ? err.message : String(err);
+    const cause = (err as { cause?: unknown })?.cause;
+    const causeMsg = cause instanceof Error ? cause.message : cause ? String(cause) : undefined;
+    console.error("[POST /api/orders]", msg, causeMsg);
     return NextResponse.json(
-      { error: "Erreur serveur. Veuillez réessayer.", _debug: msg },
+      { error: "Erreur serveur. Veuillez réessayer.", _debug: msg, _cause: causeMsg },
       { status: 500 }
     );
   }
