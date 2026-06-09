@@ -19,7 +19,7 @@ const poolClient = postgres(connectionString, {
   idle_timeout: isServerless ? 20 : 30,
   connect_timeout: 10,
   prepare: false,
-  ssl: isServerless ? "require" : false,
+  ssl: "require",
 });
 
 export const db = drizzle(poolClient, { schema });
